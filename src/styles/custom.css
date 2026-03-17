@@ -1,0 +1,108 @@
+/* Stable402 design system — Payments & Agentic Commerce vertical (amber) */
+
+/* Dark mode accent — amber-400 */
+:root[data-theme='dark'],
+:root {
+  --sl-color-accent-low: #451a03;
+  --sl-color-accent: #f59e0b;
+  --sl-color-accent-high: #fde68a;
+  --sl-color-white: #f8fafc;
+  --sl-color-black: #0a0e17;
+
+  /* Content backgrounds */
+  --sl-color-bg: #0a0e17;
+  --sl-color-bg-nav: #0d1120;
+  --sl-color-bg-sidebar: #0d1120;
+}
+
+/* Fonts */
+:root {
+  --sl-font: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --sl-font-mono: 'IBM Plex Mono', 'Fira Code', ui-monospace, monospace;
+}
+
+/* Tighten sidebar */
+.sidebar-content {
+  padding-top: 1rem;
+}
+
+/* Code blocks */
+.expressive-code {
+  --code-background: #111827;
+  border-radius: 8px;
+}
+
+/* Starlight hero on homepage */
+.sl-hero {
+  padding-block: 3rem;
+}
+
+/* POC cards on homepage */
+.poc-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.poc-card {
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 8px;
+  padding: 1.25rem;
+  background: var(--sl-color-bg-nav);
+  transition: border-color 0.15s ease;
+}
+
+.poc-card:hover {
+  border-color: var(--sl-color-accent);
+}
+
+.poc-card-number {
+  font-family: var(--sl-font-mono);
+  font-size: 0.75rem;
+  color: var(--sl-color-accent);
+  margin-bottom: 0.5rem;
+}
+
+.poc-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--sl-color-white);
+  margin-bottom: 0.4rem;
+}
+
+.poc-card-desc {
+  font-size: 0.875rem;
+  color: var(--sl-color-gray-2);
+  line-height: 1.5;
+}
+
+.poc-card-badge {
+  display: inline-block;
+  margin-top: 0.75rem;
+  font-family: var(--sl-font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.poc-card-badge.live {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}
+
+.poc-card-badge.building {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.poc-card-badge.planned {
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--sl-color-gray-3);
+  border: 1px solid rgba(148, 163, 184, 0.2);
+}

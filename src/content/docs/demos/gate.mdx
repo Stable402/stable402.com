@@ -1,0 +1,187 @@
+---
+title: "POC 1 — x402 Basic Gate"
+description: "A Cloudflare Worker implementing the canonical x402 V2 payment handshake. Returns HTTP 402 with PAYMENT-REQUIRED header. Accepts USDC on Base Sepolia via Coinbase CDP facilitator."
+---
+
+import GateDemo from '../../../components/GateDemo.astro';
+
+**Endpoint:** `api.stable402.com/gate` · **Status:** Live · **Network:** Base Sepolia (testnet) · **[View source](https://github.com/Stable402/x402-worker-middleware)**
+
+---
+
+## What this demonstrates
+
+The x402 basic gate is the simplest possible x402 implementation: a single endpoint that returns HTTP `402 Payment Required` when called without a valid payment, and `200 OK` with a payload after the Coinbase CDP facilitator verifies the payment.
+
+This pattern establishes the core x402 V2 contract. A machine-readable `PAYMENT-REQUIRED` header encodes everything a client needs to construct and submit payment autonomously — no accounts, no API keys, no human intervention. An AI agent can receive the 402, parse the header, settle via USDC on Base Sepolia, and retry — all in a single code path.
+
+---
+
+## The payment flow
+
+**Step 1 — Unauthenticated request.** Client sends a standard HTTP GET. No special headers.
+
+```bash
+GET /gate HTTP/1.1
+Host: api.stable402.com
+```
+
+**Step 2 — 402 response with PAYMENT-REQUIRED header.** The Worker returns HTTP 402. The `PAYMENT-REQUIRED` header is a base64-encoded JSON object:
+
+```json
+{
+  "x402Version": 2,
+  "resource": {
+    "url": "https://api.stable402.com/gate",
+    "description": "Access to the x402 basic gate reference endpoint.",
+    "mimeType": "application/json"
+  },
+  "accepts": [{
+    "scheme": "exact",
+    "network": "eip155:84532",
+    "amount": "1000",
+    "payTo": "0x22F637cF55217cb00252dDCF0c61FC4EfC12682c",
+    "maxTimeoutSeconds": 60,
+    "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    "extra": { "name": "USDC", "version": "2" }
+  }]
+}
+```
+
+`network: "eip155:84532"` is Base Sepolia testnet. `amount: "1000"` is 1000 USDC base units — $0.001 USDC. The `asset` address is USDC on Base Sepolia.
+
+:::note[V2 field names]
+In x402 V2, the field is `amount` (not `maxAmountRequired` from V1). Resource metadata (`url`, `description`, `mimeType`) moves into a top-level `resource` object rather than being duplicated in each payment option.
+:::
+
+**Step 3 — Payment construction.** An x402-aware client decodes the header, signs a USDC `transferWithAuthorization` (EIP-3009) on Base Sepolia for 1000 base units to `payTo`, and encodes it as a `PAYMENT-SIGNATURE` header.
+
+**Step 4 — Facilitator verification.** The Worker POSTs to the Coinbase CDP facilitator:
+
+```bash
+POST https://api.cdp.coinbase.com/platform/v2/x402/verify
+Content-Type: application/json
+
+{
+  "paymentPayload": "<PAYMENT-SIGNATURE value>",
+  "paymentRequirements": { ... }
+}
+```
+
+The CDP facilitator verifies the on-chain EIP-3009 authorization and returns a settlement receipt. Free tier: 1,000 verifications/month, no API key required.
+
+**Step 5 — 200 response.** On successful verification, the Worker returns HTTP 200 with the payload and a `PAYMENT-RESPONSE` header containing the base64-encoded settlement receipt.
+
+```json
+{
+  "message": "Payment verified. Welcome to the x402 basic gate.",
+  "endpoint": "api.stable402.com/gate",
+  "protocol": "x402 V2",
+  "facilitator": "Coinbase CDP (Base Sepolia)",
+  "timestamp": "2026-03-17T00:00:00.000Z",
+  "documentation": "https://stable402.com/demos/gate"
+}
+```
+
+---
+
+## Implementation
+
+The Worker uses **Hono** as the framework and **`@x402/core/types`** for structural type correctness. The x402 handshake is implemented explicitly — every step visible — rather than using `@x402/hono`'s `paymentMiddlewareFromConfig`, which requires a startup sync that doesn't map to stateless Worker invocations.
+
+```typescript
+import { Hono } from 'hono';
+import type { PaymentRequired, PaymentRequirements, ResourceInfo } from '@x402/core/types';
+
+const app = new Hono<{ Bindings: { WALLET_ADDRESS: string } }>();
+
+app.get('/gate', async (c) => {
+  const paymentSignature = c.req.header('PAYMENT-SIGNATURE');
+
+  const requirements: PaymentRequirements = {
+    scheme: 'exact',
+    network: 'eip155:84532',
+    amount: '1000',            // 0.001 USDC in base units
+    payTo: c.env.WALLET_ADDRESS,
+    maxTimeoutSeconds: 60,
+    asset: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+    extra: { name: 'USDC', version: '2' },
+  };
+
+  const resource: ResourceInfo = {
+    url: 'https://api.stable402.com/gate',
+    description: 'Access to the x402 basic gate reference endpoint.',
+    mimeType: 'application/json',
+  };
+
+  // Pass 1: No payment → return 402
+  if (!paymentSignature) {
+    const paymentRequired: PaymentRequired = {
+      x402Version: 2,
+      resource,
+      accepts: [requirements],
+    };
+    return new Response(null, {
+      status: 402,
+      headers: { 'PAYMENT-REQUIRED': btoa(JSON.stringify(paymentRequired)) },
+    });
+  }
+
+  // Pass 2: Verify with CDP facilitator → return 200 or 402
+  const verifyRes = await fetch('https://api.cdp.coinbase.com/platform/v2/x402/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ paymentPayload: paymentSignature, paymentRequirements: requirements }),
+  });
+
+  if (!verifyRes.ok) {
+    return c.json({ error: 'Payment verification failed' }, 402);
+  }
+
+  const settlement = await verifyRes.json();
+  return new Response(JSON.stringify({ message: 'Payment verified.' }), {
+    status: 200,
+    headers: { 'PAYMENT-RESPONSE': btoa(JSON.stringify(settlement)) },
+  });
+});
+
+export default app;
+```
+
+Full source: [github.com/Stable402/x402-worker-middleware](https://github.com/Stable402/x402-worker-middleware)
+
+---
+
+## Try it
+
+<GateDemo />
+
+No wallet required — the unauthenticated request returns the 402 and decodes the `PAYMENT-REQUIRED` header live.
+
+---
+
+## Deploy your own
+
+```bash
+git clone https://github.com/Stable402/x402-worker-middleware
+cd x402-worker-middleware
+npm install
+
+# Set your Base Sepolia wallet address
+npx wrangler secret put WALLET_ADDRESS
+
+# Deploy
+npm run deploy
+```
+
+Requires a Cloudflare account with `api.yourdomain.com` configured as a Worker route. Base Sepolia USDC is available from the [Circle faucet](https://faucet.circle.com).
+
+---
+
+## Key decisions
+
+**Why explicit over `@x402/hono`?** `paymentMiddlewareFromConfig` calls the CDP `/supported` endpoint during initialization to learn what schemes are supported. In a stateless Worker, this initialization runs on every cold start and fails if the facilitator is slow or unreachable — producing 500s instead of 402s. The explicit pattern has no initialization dependency.
+
+**Why `AssetAmount` over a money string?** Specifying `{ asset: ADDRESS, amount: '1000' }` makes the exact token contract and base-unit amount explicit in the source code. A money string like `'$0.001'` requires a parser to know which token contract to resolve it to — adding an abstraction that obscures what the protocol is actually doing.
+
+**Why Hono?** Hono is the standard framework for Cloudflare Workers — lightweight, TypeScript-first, and Workers-native. It handles CORS middleware and routing cleanly without adding dependencies that assume a Node.js runtime.
