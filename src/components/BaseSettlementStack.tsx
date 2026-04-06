@@ -358,15 +358,19 @@ export function BaseSettlementStack({ highlightedRail = 'base' }: BaseSettlement
                       />
                     )}
 
-                    {/* Tooltip — render to the LEFT of the column for the
-                        rightmost rail, otherwise to the right. The Base
-                        column is in the middle so we always go right. */}
-                    {isHov && (
+                    {/* Tooltip — flip-side rule per Atlas Production Spec §4.2:
+                        render to the right by default, flip left if the box would
+                        extend past the canvas right edge. */}
+                    {isHov && (() => {
+                      const tooltipW = 240;
+                      const flipLeft = cx + COL_W + 8 + tooltipW > W - 8;
+                      const tx = flipLeft ? cx - 8 - tooltipW : cx + COL_W + 8;
+                      return (
                       <g style={{ pointerEvents: 'none' }}>
                         <rect
-                          x={cx + COL_W + 8}
+                          x={tx}
                           y={layer.y + 2}
-                          width={240}
+                          width={tooltipW}
                           height={LAYER_H - 4}
                           rx={4}
                           fill="#0a0e17"
@@ -376,9 +380,9 @@ export function BaseSettlementStack({ highlightedRail = 'base' }: BaseSettlement
                           stroke-opacity={0.85}
                         />
                         <foreignObject
-                          x={cx + COL_W + 8}
+                          x={tx}
                           y={layer.y + 2}
-                          width={240}
+                          width={tooltipW}
                           height={LAYER_H - 4}
                         >
                           <div
@@ -413,7 +417,8 @@ export function BaseSettlementStack({ highlightedRail = 'base' }: BaseSettlement
                           </div>
                         </foreignObject>
                       </g>
-                    )}
+                      );
+                    })()}
                   </g>
                 );
               })}

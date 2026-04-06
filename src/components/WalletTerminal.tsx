@@ -358,12 +358,16 @@ export function WalletTerminal({ connectedWalletType = 'smart' }: WalletTerminal
                     )}
 
                     {/* Tooltip for hovered block */}
-                    {isHov && (
+                    {isHov && (() => {
+                      const tooltipW = 232;
+                      const flipLeft = cx + COL_W + 8 + tooltipW > W - 8;
+                      const tx = flipLeft ? cx - 8 - tooltipW : cx + COL_W + 8;
+                      return (
                       <g style={{ pointerEvents: 'none' }}>
                         <rect
-                          x={cx + COL_W + 8}
+                          x={tx}
                           y={layer.y + 2}
-                          width={232}
+                          width={tooltipW}
                           height={LAYER_H - 4}
                           rx={4}
                           fill="#0a0e17"
@@ -373,9 +377,9 @@ export function WalletTerminal({ connectedWalletType = 'smart' }: WalletTerminal
                           stroke-opacity={0.85}
                         />
                         <foreignObject
-                          x={cx + COL_W + 8}
+                          x={tx}
                           y={layer.y + 2}
-                          width={232}
+                          width={tooltipW}
                           height={LAYER_H - 4}
                         >
                           <div
@@ -410,7 +414,8 @@ export function WalletTerminal({ connectedWalletType = 'smart' }: WalletTerminal
                           </div>
                         </foreignObject>
                       </g>
-                    )}
+                      );
+                    })()}
                   </g>
                 );
               })}
