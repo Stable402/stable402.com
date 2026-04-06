@@ -4,8 +4,11 @@ These rules apply to any AI agent (Claude Code, Cowork, Claude Agent SDK) workin
 
 ## Session start
 
-1. Run `git status` and `git log --oneline -10` before any edits. Trust the repo, not the chat memory.
-2. If `HANDOFF.md` exists at the repo root or in `atlas_compliance/`, read it and resume from its **Open Threads** section.
+1. Read `../atlas_compliance/STRATEGY.md` first, then `../atlas_compliance/HANDOFF.md`. Strategy is the durable "why and what"; handoff is the ephemeral "where we are right now." Read strategy first so the handoff gets interpreted through the strategic lens.
+2. Run `git status` and `git log --oneline -10` in both the current site repo AND `../atlas_compliance/` before any edits. Trust the repo, not the chat memory.
+3. Resume from the **Open Threads** section of `HANDOFF.md` unless the user explicitly redirects.
+
+With these three steps done automatically, the user's session-opener prompt can shrink to just: *"Continue from HANDOFF Open Threads. We're working on X."*
 
 ## Editing
 
