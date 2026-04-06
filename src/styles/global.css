@@ -294,21 +294,7 @@ body {
   }
 }
 
-/* ── Section 4 — Payment & Delivery (DvP two-column) ─────── */
-.dvp-grid {
-  display: grid;
-  grid-template-columns: 1.35fr 1fr;
-  gap: 28px;
-  align-items: start;
-  margin: 28px 0;
-}
-
-.dvp-column {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
+/* ── Section 4 — Payment & Delivery ─────── */
 .dvp-column-label {
   font-family: var(--font-mono);
   font-size: 11px;
@@ -333,12 +319,6 @@ body {
 .dvp-column-caption a {
   color: #422006;
   text-decoration: underline;
-}
-
-@media (max-width: 900px) {
-  .dvp-grid {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ── Links Out ─────────────────────────────────────────── */
