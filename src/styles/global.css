@@ -1,0 +1,424 @@
+/* ═══════════════════════════════════════════════════════════
+   Stable402.com — Global Theme
+   x402 micropayments, live.
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Fonts ──────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
+
+/* ── Custom Properties ─────────────────────────────────── */
+:root {
+  /* Page */
+  --bg: #faf9f6;
+  --bg-dark: #0a0e17;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --border: #e0ddd8;
+
+  /* Accent: Amber (x402) */
+  --accent: #fbbf24;
+  --accent-dim: #422006;
+
+  /* Wallet / success */
+  --success: #16a34a;
+  --warn: #d97706;
+  --error: #dc2626;
+
+  /* Domain colors (diagrams) */
+  --domain-t1-token: #34D399;
+  --domain-t2-reserves: #FBBF24;
+  --domain-t3-execution: #FB923C;
+  --domain-t4-discovery: #A78BFA;
+  --domain-t5-transfer: #2DD4BF;
+  --domain-t6-identity: #60A5FA;
+  --domain-t7-reporting: #FB7185;
+  --domain-neutral: #64748B;
+
+  /* Typography */
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+
+/* ── Reset ─────────────────────────────────────────────── */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ── Base ──────────────────────────────────────────────── */
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-serif);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+}
+
+/* ── Page Container ────────────────────────────────────── */
+.page-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+/* ── Header ────────────────────────────────────────────── */
+.site-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 100;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.site-header .logo {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.site-header .logo span {
+  color: var(--accent);
+}
+
+.site-header nav {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+}
+
+.site-header nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s;
+}
+
+.site-header nav a:hover {
+  color: var(--text);
+}
+
+/* ── Build Badge (header) ─────────────────────────────── */
+.build-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.02em;
+  margin-left: 4px;
+  white-space: nowrap;
+}
+
+.build-badge-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  animation: pulse 2.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* ── Hero ──────────────────────────────────────────────── */
+.hero {
+  text-align: center;
+  padding: 56px 0 40px;
+}
+
+.hero h1 {
+  font-family: var(--font-sans);
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.1;
+}
+
+.hero h1 .accent {
+  color: var(--accent);
+}
+
+.hero .subhead {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  color: var(--text-muted);
+  max-width: 600px;
+  margin: 0 auto 28px;
+  line-height: 1.5;
+}
+
+.hero .cta-area {
+  margin-top: 20px;
+}
+
+/* ── Sections ──────────────────────────────────────────── */
+.demo-section {
+  padding: 48px 0;
+  border-top: 1px solid var(--border);
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.section-title {
+  font-family: var(--font-sans);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.section-body {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  color: var(--text-muted);
+  line-height: 1.65;
+  margin-bottom: 28px;
+}
+
+.section-annotation {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-top: 24px;
+  padding: 16px;
+  background: #f5f5f0;
+  border-radius: 8px;
+  border-left: 3px solid var(--accent);
+  line-height: 1.6;
+}
+
+.section-annotation a {
+  color: var(--accent-dim);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+/* ── Diagram Container (dark bg) ───────────────────────── */
+.diagram-container {
+  margin: 24px 0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ── Code Blocks ───────────────────────────────────────── */
+.code-block {
+  background: var(--bg-dark);
+  border-radius: 8px;
+  padding: 20px;
+  margin: 16px 0;
+  overflow-x: auto;
+  border: 1px solid #1a1f2a;
+}
+
+.code-block pre {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: #e2e8f0;
+  margin: 0;
+  white-space: pre;
+}
+
+/* Astro <Code /> component overrides inside .code-block */
+.code-block .astro-code,
+.code-block pre[class*="shiki"],
+.code-block pre[style] {
+  background: transparent !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+  line-height: 1.6 !important;
+  overflow-x: auto;
+}
+
+.code-block .astro-code code,
+.code-block pre[class*="shiki"] code {
+  font-family: var(--font-mono) !important;
+  font-size: 12px !important;
+}
+
+.code-block .label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #4b5563;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.code-blocks-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .code-blocks-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Section 4 — Payment & Delivery (DvP two-column) ─────── */
+.dvp-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 1fr;
+  gap: 28px;
+  align-items: start;
+  margin: 28px 0;
+}
+
+.dvp-column {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dvp-column-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b6b6b;
+  border-bottom: 1px solid #e0ddd8;
+  padding-bottom: 8px;
+}
+
+.dvp-column-caption {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 1.55;
+  color: #4b4b4b;
+  padding: 12px 14px;
+  background: #f5f5f0;
+  border-left: 3px solid #fbbf24;
+  border-radius: 0 4px 4px 0;
+}
+
+.dvp-column-caption a {
+  color: #422006;
+  text-decoration: underline;
+}
+
+@media (max-width: 900px) {
+  .dvp-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Links Out ─────────────────────────────────────────── */
+.links-out {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+@media (max-width: 768px) {
+  .links-out {
+    grid-template-columns: 1fr;
+  }
+}
+
+.link-card {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  text-decoration: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.link-card:hover {
+  border-color: var(--accent);
+  box-shadow: 0 2px 12px rgba(251, 191, 36, 0.08);
+}
+
+.link-card .link-title {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.link-card .link-desc {
+  font-family: var(--font-serif);
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ── Footer ────────────────────────────────────────────── */
+.site-footer {
+  text-align: center;
+  padding: 40px 24px;
+  border-top: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--text-muted);
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.site-footer a {
+  color: var(--text-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .build-badge {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero h1 {
+    font-size: 28px;
+  }
+  .hero .subhead {
+    font-size: 15px;
+  }
+  .section-title {
+    font-size: 22px;
+  }
+  .page-container {
+    padding: 0 16px;
+  }
+}

@@ -1,0 +1,344 @@
+---
+import Main from '../layouts/Main.astro';
+import { Code } from 'astro:components';
+import JourneyMap from '../components/JourneyMap';
+import WalletTerminal from '../components/WalletTerminal';
+import BaseSettlementStack from '../components/BaseSettlementStack';
+import { WalletConnect, GateProbe, PaymentButton } from '../components/PaymentFlow';
+import PdfCard from '../components/PdfCard';
+import { X402_JOURNEY } from '../data/journeys';
+
+const serverCode = `// stablekya.com/api/report — x402 gate
+export default {
+  async fetch(request: Request, env: Env) {
+    const paymentSig = request.headers
+      .get('PAYMENT-SIGNATURE');
+
+    if (!paymentSig) {
+      return new Response('Payment Required', {
+        status: 402,
+        headers: {
+          'PAYMENT-REQUIRED': btoa(JSON.stringify({
+            accepts: [{
+              scheme: 'exact',
+              network: 'base-sepolia',
+              asset: 'USDC',
+              amount: '1000',
+              payTo: env.MERCHANT_ADDRESS,
+              resource: 'kya-compliance-report-v1',
+            }],
+          })),
+        },
+      });
+    }
+
+    // Verify payment via facilitator...
+    const report = await env.REPORTS
+      .get('kya-report-v1.pdf');
+    return new Response(report.body, {
+      headers: {
+        'Content-Type': 'application/pdf',
+      },
+    });
+  },
+};`;
+
+const clientCode = `// Stable402.com — x402 buyer flow
+async function purchaseReport() {
+  // 1. Hit the gate
+  const res402 = await fetch(
+    'https://stablekya.com/api/report'
+  );
+  const requirements = JSON.parse(atob(
+    res402.headers.get('PAYMENT-REQUIRED')
+  )).accepts[0];
+
+  // 2. Sign EIP-3009 authorization
+  const signature = await walletClient
+    .signTypedData({
+      domain: {
+        name: 'USDC', version: '2',
+        chainId: 84532,
+        verifyingContract: USDC,
+      },
+      types: {
+        TransferWithAuthorization: [
+          /* from, to, value, ... */
+        ],
+      },
+      message: {
+        from: address,
+        to: requirements.payTo,
+        value: BigInt(requirements.amount),
+      },
+    });
+
+  // 3. Retry with payment
+  const res200 = await fetch(
+    'https://stablekya.com/api/report',
+    {
+      headers: {
+        'PAYMENT-SIGNATURE': btoa(
+          JSON.stringify({
+            x402Version: 2,
+            accepted: requirements,
+            payload: { signature },
+          })
+        ),
+      },
+    }
+  );
+
+  // 4. Deliver the PDF
+  const pdf = await res200.blob();
+  downloadPdf(pdf, 'kya-report.pdf');
+}`;
+---
+
+<Main title="Stable402 — x402 micropayment, live demo.">
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════ -->
+  <section class="hero">
+    <h1>x402 micropayment, <span class="accent">live demo.</span></h1>
+    <p class="subhead">
+      Buy a compliance report from StableKYA.com for $0.001 testnet USDC, signed by a <strong>Coinbase Smart Wallet</strong> and settled on <strong>Base Sepolia</strong> via the <strong>Coinbase CDP x402 facilitator</strong>. Watch every stage of the payment lifecycle as it happens.
+    </p>
+
+    <!-- Full JourneyMap — the establishing shot -->
+    <div class="diagram-container">
+      <JourneyMap
+        client:visible
+        journeys={[X402_JOURNEY]}
+        title="x402 Payment Journey"
+      />
+    </div>
+
+    <div class="cta-area" style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="#wallet" style="display:inline-block; background:#fbbf24; color:#422006; padding:14px 28px; border-radius:8px; font-family:var(--font-sans); font-size:15px; font-weight:700; text-decoration:none; transition:opacity 0.15s;">
+        Connect Wallet to Begin
+      </a>
+      <a href="#wallet" id="demo-mode-btn" style="display:inline-block; background:transparent; color:#fbbf24; padding:14px 28px; border-radius:8px; font-family:var(--font-sans); font-size:15px; font-weight:700; text-decoration:none; transition:opacity 0.15s; border:2px solid #fbbf24;">
+        Try Without Wallet
+      </a>
+    </div>
+
+    <script is:inline>
+      // Default to demo mode on page load — the live stablekya.com/api/report
+      // gate is not yet returning real 402s, so the demo payload is the
+      // honest source of truth until the Worker ships. Real wallet
+      // connections still override this and run the live signing flow.
+      window.__x402_demo = true;
+
+      document.getElementById('demo-mode-btn')?.addEventListener('click', function() {
+        window.__x402_demo = true;
+        window.dispatchEvent(new CustomEvent('x402-demo-mode'));
+      });
+    </script>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 1: YOUR WALLET (S1 Intent + S2 Identity)
+       ═══════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="wallet">
+    <div class="section-label">Section 1</div>
+    <h2 class="section-title">Your Wallet</h2>
+    <p class="section-body">
+      The x402 journey begins when you delegate spending authority by connecting a wallet. This demo expects a <strong>Coinbase Smart Wallet</strong> (an ERC-4337 account-abstraction wallet with a WebAuthn passkey) on <strong>Base Sepolia</strong>, but any EIP-1193 provider — Coinbase Wallet, MetaMask, Rainbow — will connect. Your wallet's identity, address and chain, becomes the foundation for every compliance check that follows.
+    </p>
+
+    <!-- Compact JourneyMap: S1 Intent + S2 Identity highlighted -->
+    <div class="diagram-container">
+      <JourneyMap
+        client:visible
+        journeys={[X402_JOURNEY]}
+        highlightStages={[0, 1]}
+        compact={true}
+      />
+    </div>
+
+    <!-- Wallet connection UI -->
+    <div style="margin: 28px 0;">
+      <WalletConnect client:visible />
+    </div>
+
+    <!-- Wallet Terminal Diagram -->
+    <div class="diagram-container">
+      <WalletTerminal client:visible />
+    </div>
+
+    <div class="section-annotation">
+      The Coinbase Smart Wallet's compliance surface reaches <strong>L3 Execution</strong> — session keys, spending limits, and transfer hooks are enforced in EVM bytecode by the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:13px;">validateUserOp</code> path of its ERC-4337 account contract, not by an off-chain dashboard. That places it <em>below the STATE line</em> in the diagram above. For the full wallet taxonomy, see <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a>.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 2: THE GATE (S3 Discovery + S4 Negotiation)
+       ═══════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="gate">
+    <div class="section-label">Section 2</div>
+    <h2 class="section-title">The Gate</h2>
+    <p class="section-body">
+      When any HTTP client — browser, CLI, or AI agent — hits a paywalled resource, the server responds with <code style="font-family:var(--font-mono); background:#f5f5f0; padding:2px 6px; border-radius:3px; font-size:14px;">HTTP 402 Payment Required</code>. The payment requirements are encoded in the response headers. The server doesn't know or care what the client is.
+    </p>
+
+    <!-- Compact JourneyMap: S3 Discovery + S4 Negotiation highlighted -->
+    <div class="diagram-container">
+      <JourneyMap
+        client:visible
+        journeys={[X402_JOURNEY]}
+        highlightStages={[2, 3]}
+        compact={true}
+      />
+    </div>
+
+    <!-- Live 402 decode -->
+    <div style="margin: 28px 0;">
+      <GateProbe client:visible />
+    </div>
+
+    <div class="section-annotation">
+      This is what your agent sees when it hits a paywalled resource. The server doesn't know or care whether the client is a browser, a CLI tool, or an autonomous AI agent. The 402 response is the same for all of them.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 3: THE PAYMENT (S5 Transport + S6 Authorization)
+       ═══════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="payment">
+    <div class="section-label">Section 3</div>
+    <h2 class="section-title">The Payment</h2>
+    <p class="section-body">
+      You sign an <strong>EIP-3009</strong> <code style="font-family:var(--font-mono); background:#f5f5f0; padding:2px 6px; border-radius:3px; font-size:14px;">transferWithAuthorization</code> against Circle's <strong>USDC</strong> contract on Base Sepolia — a gasless USDC transfer that the <strong>Coinbase CDP x402 facilitator</strong> submits on your behalf. OFAC screening (Chainalysis address screening) fires at S6 as a code-enforced gate before the transfer lands on-chain.
+    </p>
+
+    <!-- Compact JourneyMap: S5 Transport + S6 Authorization highlighted -->
+    <div class="diagram-container">
+      <JourneyMap
+        client:visible
+        journeys={[X402_JOURNEY]}
+        highlightStages={[4, 5]}
+        compact={true}
+      />
+    </div>
+
+    <!-- Purchase flow + transaction log -->
+    <div style="margin: 28px 0;">
+      <PaymentButton client:visible />
+    </div>
+
+    <div class="section-annotation">
+      OFAC screening fires at S6 as a code-enforced gate. The <strong>Coinbase CDP x402 facilitator</strong> verifies the EIP-3009 signature, screens the sender address against the Chainalysis sanctioned-address oracle, and only then submits the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:13px;">transferWithAuthorization</code> call to Circle's USDC contract on Base Sepolia. For the full checkpoint taxonomy, see <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a>.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4: PAYMENT & DELIVERY (S7 Facilitation + S8 Finality)
+       Atomic-ish DvP: the funds settle on Base on the LEFT,
+       the resource is delivered over HTTP on the RIGHT.
+       ═══════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="delivery">
+    <div class="section-label">Section 4</div>
+    <h2 class="section-title">Payment &amp; Delivery</h2>
+    <p class="section-body">
+      Two events fire in close sequence on two different rails. On the on-chain rail, the <strong>Coinbase CDP x402 facilitator</strong> drives a <code style="font-family:var(--font-mono); background:#f5f5f0; padding:2px 6px; border-radius:3px; font-size:14px;">transferWithAuthorization</code> call to Circle's USDC contract on <strong>Base Sepolia</strong>, reaching soft finality in ~2s and inheriting hard finality from Ethereum L1 data availability. On the HTTP rail, the StableKYA Worker responds with <code style="font-family:var(--font-mono); background:#f5f5f0; padding:2px 6px; border-radius:3px; font-size:14px;">200 OK</code> and the compliance PDF body. The two rails are bound by the x402 protocol into a near-atomic <em>delivery-versus-payment</em> exchange — payment on the left, delivery on the right.
+    </p>
+
+    <!-- Compact JourneyMap: S7 Facilitation + S8 Finality highlighted -->
+    <div class="diagram-container">
+      <JourneyMap
+        client:visible
+        journeys={[X402_JOURNEY]}
+        highlightStages={[6, 7]}
+        compact={true}
+      />
+    </div>
+
+    <!-- Payment — full-width settlement stack diagram, matching JourneyMap above -->
+    <div class="dvp-column-label" style="margin: 28px 0 14px;">Payment — settled on Base</div>
+    <div class="diagram-container">
+      <BaseSettlementStack client:visible />
+    </div>
+    <div class="dvp-column-caption" style="margin-bottom: 28px;">
+      The Coinbase CDP / Base / USDC rail reaches all the way to <strong>L1 Ethereum data availability</strong> — every block below the STATE line is enforced in EVM bytecode. Off-chain ledgers never cross the line.
+    </div>
+
+    <!-- Delivery — PDF resource, full width below -->
+    <div class="dvp-column-label" style="margin: 28px 0 14px;">Delivery — resource over HTTP</div>
+    <div style="margin-bottom: 14px;">
+      <PdfCard
+        client:visible
+        unlocked={false}
+        pdfUrl={null}
+        txHash={null}
+        block={null}
+        settlementTime={null}
+      />
+    </div>
+    <div class="dvp-column-caption">
+      The PDF body returned in the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:12px;">200 OK</code> response is the resource half of the exchange. The compliance diagram inside it maps the transaction you just made.
+    </div>
+
+    <div class="section-annotation">
+      x402 binds these two events into an <strong>atomic delivery-versus-payment</strong> exchange — neither side can complete without the other. This is the same DvP property tokenization frameworks have spent a decade trying to engineer for traditional securities settlement, achieved here for a $0.001 PDF download with ~40 lines of Worker code. See <a href="https://atomicdvp.com" target="_blank" rel="noopener noreferrer">AtomicDvP.com</a> for the full thesis.
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 5: THE CODE (Full Map, Dimmed)
+       ═══════════════════════════════════════════════════════ -->
+  <section class="demo-section" id="code">
+    <div class="section-label">Section 5</div>
+    <h2 class="section-title">The Code</h2>
+    <p class="section-body">
+      The payment flow code — buyer site and publisher Worker — is open source. The server is ~40 lines. The client is ~60.
+    </p>
+
+    <!-- Code snippets (syntax-highlighted via Astro Code component) -->
+    <div class="code-blocks-row">
+      <div class="code-block">
+        <div class="label">Server (Worker) — ~40 lines</div>
+        <Code code={serverCode} lang="ts" theme="github-dark" />
+      </div>
+
+      <div class="code-block">
+        <div class="label">Client (Browser) — ~60 lines</div>
+        <Code code={clientCode} lang="ts" theme="github-dark" />
+      </div>
+    </div>
+
+    <!-- Open source callout -->
+    <div style="text-align:center; margin:32px 0 16px;">
+      <a
+        href="https://github.com/stable402/x402-micropayment-demo"
+        target="_blank"
+        rel="noopener noreferrer"
+        style="display:inline-block; background:#0a0e17; color:#f9fafb; padding:14px 28px; border-radius:8px; font-family:var(--font-mono); font-size:14px; font-weight:600; text-decoration:none; transition:opacity 0.15s;"
+      >
+        View on GitHub
+      </a>
+    </div>
+
+    <!-- Links out -->
+    <div class="links-out">
+      <a class="link-card" href="https://stablekya.com" target="_blank" rel="noopener noreferrer">
+        <div class="link-title">StableKYA.com</div>
+        <div class="link-desc">The publisher. Full compliance reference.</div>
+      </a>
+      <a class="link-card" href="https://stablel1.com" target="_blank" rel="noopener noreferrer">
+        <div class="link-title">StableL1.com</div>
+        <div class="link-desc">Settlement chains. Why Base settles in 2 seconds.</div>
+      </a>
+      <a class="link-card" href="https://stablecoinatlas.com" target="_blank" rel="noopener noreferrer">
+        <div class="link-title">StablecoinAtlas.com</div>
+        <div class="link-desc">The transit map. Infrastructure layer diagrams.</div>
+      </a>
+      <a class="link-card" href="https://x402.org" target="_blank" rel="noopener noreferrer">
+        <div class="link-title">x402 Protocol Spec</div>
+        <div class="link-desc">The protocol specification.</div>
+      </a>
+    </div>
+  </section>
+
+</Main>
