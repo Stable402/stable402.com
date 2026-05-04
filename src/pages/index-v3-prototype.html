@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Stable402 — x402 micropayment, explained and executable</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ═══════════════ TOKENS ═══════════════ */
+:root {
+  --bg: #faf9f6;
+  --bg-dark: #0a0e17;
+  --bg-card: #111827;
+  --bg-tooltip: #0a0e17;
+  --text: #1a1a1a;
+  --text-muted: #6b6b6b;
+  --border: #e0ddd8;
+  --accent: #fbbf24;
+  --accent-dim: #422006;
+  --success: #16a34a;
+  --error: #dc2626;
+  --slate-200: #e2e8f0;
+  --slate-300: #cbd5e1;
+  --slate-400: #94a3b8;
+  --slate-500: #64748b;
+  --slate-600: #475569;
+  --slate-700: #334155;
+  --slate-800: #1e293b;
+  --ink: #0f172a;
+  --crimson: #be123c;
+  /* Domain colors — full register (dark bg) */
+  --d-neutral:   #64748b;
+  --d-identity:  #60A5FA;
+  --d-discovery: #A78BFA;
+  --d-reserves:  #FBBF24;
+  --d-transfer:  #2DD4BF;
+  --d-execution: #FB923C;
+  --d-token:     #34D399;
+  --d-reporting: #FB7185;
+  /* Domain colors — muted register (white bg) */
+  --dm-identity:  #3B6CB5;
+  --dm-transfer:  #2D8E85;
+  --dm-execution: #C2693D;
+  --dm-token:     #3D8E6A;
+  --dm-reporting: #8B3A4A;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-serif: Georgia, 'Times New Roman', serif;
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+body { font-family: var(--font-serif); background: var(--bg); color: var(--text); line-height: 1.65; }
+
+/* ═══════════════ LAYOUT ═══════════════ */
+.page { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+
+/* Header */
+.hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 0; border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans); font-size: 13px;
+  position: sticky; top: 0; background: var(--bg); z-index: 100;
+}
+.logo { font-family: var(--font-mono); font-weight: 700; font-size: 15px; color: var(--text); text-decoration: none; }
+.logo b { color: var(--accent); }
+.hdr nav { display: flex; gap: 18px; align-items: center; }
+.hdr nav a { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+.hdr nav a:hover { color: var(--text); }
+.badge { display: flex; align-items: center; gap: 6px; color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; }
+.badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--success); animation: pulse 2.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* Hero */
+.hero { text-align: center; padding: 56px 0 36px; }
+.hero h1 { font-family: var(--font-sans); font-size: 38px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.12; margin-bottom: 14px; }
+.hero h1 b { color: var(--accent); font-weight: 800; }
+.hero .sub { font-size: 17px; color: var(--text-muted); max-width: 620px; margin: 0 auto 10px; line-height: 1.55; }
+.hero .cite { font-family: var(--font-mono); font-size: 10px; color: var(--slate-400); letter-spacing: 0.05em; margin-top: 18px; }
+.hero .cite a { color: var(--slate-500); text-decoration: underline; text-decoration-color: var(--slate-300); }
+
+/* Path intro */
+.path-intro {
+  text-align: center; padding: 0 0 20px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--accent);
+  letter-spacing: 0.14em; text-transform: uppercase;
+}
+
+/* ═══════════════ JOURNEY STRIP ═══════════════ */
+.journey-strip {
+  background: var(--bg-dark);
+  border-radius: 6px;
+  margin: 0 0 28px;
+  padding: 18px 24px 22px;
+  position: relative;
+  overflow: visible;
+  transition: box-shadow 0.3s;
+}
+.journey-strip.stuck {
+  position: sticky;
+  top: 53px; /* below header */
+  z-index: 90;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.25);
+}
+.journey-strip-hdr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.journey-strip-title {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slate-400);
+}
+.journey-strip-legend {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--slate-500);
+  letter-spacing: 0.06em;
+}
+.journey-strip-legend a {
+  color: var(--slate-400);
+  text-decoration: underline;
+  text-decoration-color: rgba(148,163,184,0.3);
+}
+
+/* Rail */
+.journey-rail {
+  position: relative;
+  height: 52px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+/* The horizontal line behind nodes */
+.journey-rail::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 2px;
+  background: var(--slate-700);
+}
+/* Active route segments get colored — drawn via JS */
+
+/* Stage node */
+.stage-node {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80px;
+  cursor: pointer;
+  z-index: 2;
+  transition: transform 0.15s;
+}
+.stage-node:hover { transform: translateY(-1px); }
+
+/* The dot */
+.stage-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--slate-600);
+  background: var(--bg-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--slate-600);
+  transition: all 0.3s ease;
+  position: relative;
+}
+/* Active: domain-colored ring */
+.stage-node.active .stage-dot {
+  border-color: var(--node-color);
+  color: var(--node-color);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.04);
+}
+/* Current: filled + pulse ring */
+.stage-node.current .stage-dot {
+  border-color: var(--node-color);
+  background: var(--node-color);
+  color: var(--bg-dark);
+  box-shadow: 0 0 0 4px rgba(255,255,255,0.06);
+}
+.stage-node.current .stage-dot::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 1.5px solid var(--node-color);
+  opacity: 0.35;
+  animation: node-pulse 2s ease-in-out infinite;
+}
+@keyframes node-pulse {
+  0%, 100% { opacity: 0.35; transform: scale(1); }
+  50% { opacity: 0.1; transform: scale(1.15); }
+}
+
+/* Stage label */
+.stage-label {
+  margin-top: 6px;
+  font-family: var(--font-mono);
+  font-size: 7.5px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--slate-600);
+  text-align: center;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+.stage-node.active .stage-label { color: var(--slate-400); }
+.stage-node.current .stage-label { color: var(--node-color); font-weight: 700; }
+
+/* Band link indicator — small text below active labels */
+.stage-band-link {
+  font-family: var(--font-mono);
+  font-size: 6.5px;
+  color: var(--slate-600);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.stage-node.active .stage-band-link,
+.stage-node.current .stage-band-link { opacity: 1; }
+
+/* Dimmed tooltip */
+.skip-tooltip {
+  display: none;
+  position: absolute;
+  top: -44px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--slate-800);
+  border: 1px solid var(--slate-600);
+  border-radius: 4px;
+  padding: 5px 10px;
+  white-space: nowrap;
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--slate-300);
+  z-index: 10;
+  pointer-events: none;
+}
+.skip-tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid var(--slate-600);
+}
+.stage-node.dimmed:hover .skip-tooltip { display: block; }
+
+/* Route segment overlays (colored lines between active nodes) */
+.route-segment {
+  position: absolute;
+  top: 14px;
+  height: 2px;
+  z-index: 1;
+  border-radius: 1px;
+}
+
+/* "You are here" marker */
+.here-marker {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.stage-node.current .here-marker { opacity: 1; }
+
+/* State transition marker between S6 and S7 */
+.state-transition-marker {
+  position: absolute;
+  top: 4px;
+  width: 1px;
+  height: 20px;
+  border-left: 1.5px dashed var(--crimson);
+  z-index: 3;
+  opacity: 0.5;
+}
+.st-label {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: 6px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--crimson);
+  opacity: 0.5;
+  white-space: nowrap;
+}
+
+/* ═══════════════ BAND (v8 register) ═══════════════ */
+.band { border-top: 1px solid var(--border); padding: 0; }
+.band-inner {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 40px;
+  padding: 28px 0;
+  align-items: start;
+  min-height: 280px;
+}
+.stack-col svg { display: block; width: 100%; max-width: 380px; }
+
+/* Prose / tabs */
+.step-hdr { margin-bottom: 10px; }
+.step-hdr h3 {
+  font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.1em; color: var(--ink); margin: 0 0 4px;
+}
+.step-hdr .analog {
+  font-family: var(--font-serif); font-size: 13px; font-style: italic;
+  color: var(--text-muted); line-height: 1.45;
+}
+
+/* Tabs */
+.tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+.tab {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 14px 7px; cursor: pointer;
+  color: var(--text-muted); border-bottom: 2px solid transparent;
+  background: none; border-top: none; border-left: none; border-right: none;
+  transition: color 0.15s;
+}
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Narrative panel */
+.narrative { padding: 14px 0; }
+.narrative p { font-size: 14px; line-height: 1.6; color: var(--text); margin-bottom: 10px; max-width: 500px; }
+.narrative strong { color: var(--ink); font-weight: 600; }
+.meta-strip {
+  display: grid; grid-template-columns: auto 1fr; gap: 3px 12px;
+  font-family: var(--font-mono); font-size: 9.5px; color: var(--slate-500);
+  border-top: 1px solid var(--slate-200); padding-top: 8px; margin-top: 10px;
+}
+.meta-strip dt { color: var(--slate-400); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; }
+.meta-strip dd { margin: 0; color: var(--slate-700); }
+
+/* Code panel */
+.code-panel { padding: 12px 0 0; }
+.code-block {
+  background: var(--bg-dark); border-radius: 6px;
+  padding: 16px 18px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: 12px; line-height: 1.55;
+  color: #e2e8f0; position: relative;
+  border: 1px solid rgba(148,163,184,0.1);
+}
+.code-block .comment { color: #64748b; }
+.code-block .keyword { color: #c084fc; }
+.code-block .string { color: #86efac; }
+.code-block .fn { color: #60a5fa; }
+.code-block .num { color: #fbbf24; }
+.code-block .type { color: #67e8f9; }
+
+.run-bar {
+  display: flex; align-items: center; gap: 12px; margin-top: 10px;
+}
+.run-btn {
+  font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  padding: 6px 16px; border-radius: 4px; cursor: pointer;
+  background: var(--accent); color: var(--accent-dim); border: none;
+  transition: opacity 0.15s;
+}
+.run-btn:hover { opacity: 0.85; }
+.run-btn:disabled { opacity: 0.4; cursor: default; }
+.run-status {
+  font-family: var(--font-mono); font-size: 10px; color: var(--slate-400);
+}
+
+/* Response panel */
+.response-panel { padding: 12px 0 0; }
+.response-empty {
+  font-family: var(--font-mono); font-size: 11px; color: var(--slate-400);
+  font-style: italic; padding: 20px 0;
+}
+.response-block {
+  background: var(--bg-dark); border-radius: 6px;
+  padding: 16px 18px; overflow-x: auto;
+  font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5;
+  color: #e2e8f0; display: none;
+  border: 1px solid rgba(148,163,184,0.1);
+}
+.response-block .status-ok { color: #86efac; font-weight: 700; }
+.response-block .status-402 { color: #fbbf24; font-weight: 700; }
+.response-block .hdr-key { color: #94a3b8; }
+.response-block .hdr-val { color: #e2e8f0; }
+.response-block .json-key { color: #60a5fa; }
+.response-block .json-str { color: #86efac; }
+.response-block .json-num { color: #fbbf24; }
+
+/* v8 mini-stack SVG tokens */
+.b-dim       { fill: #E2E8F0; stroke: #CBD5E1; stroke-width: 0.75; }
+.b-transfer  { fill: #2D8E85; fill-opacity: 0.42; stroke: #2D8E85; stroke-width: 1; }
+.b-execution { fill: #C2693D; fill-opacity: 0.42; stroke: #C2693D; stroke-width: 1; }
+.b-identity  { fill: #3B6CB5; fill-opacity: 0.42; stroke: #3B6CB5; stroke-width: 1; }
+.b-reporting { fill: #8B3A4A; fill-opacity: 0.42; stroke: #8B3A4A; stroke-width: 1; }
+.layer-lbl     { font: 600 9px var(--font-mono); fill: var(--slate-700); letter-spacing: 0.04em; }
+.layer-lbl-dim { font: 400 9px var(--font-mono); fill: var(--slate-400); letter-spacing: 0.04em; }
+.bracket   { stroke: var(--ink); stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.enf       { stroke: var(--crimson); stroke-width: 1.25; fill: none; }
+.chain-tag { font: 700 9px var(--font-mono); fill: #B8860B; letter-spacing: 0.14em; text-anchor: end; dominant-baseline: central; }
+.chk-oct   { fill: none; stroke: var(--crimson); stroke-width: 1.5; }
+
+/* Footer */
+.ftr { padding: 32px 0 48px; border-top: 1px solid var(--border); text-align: center; }
+.ftr p { font-family: var(--font-mono); font-size: 10px; color: var(--slate-400); }
+.ftr a { color: var(--slate-500); }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="hdr">
+  <a href="/" class="logo">stable<b>402</b>.com</a>
+  <nav>
+    <a href="/">Path</a>
+    <a href="/about">About</a>
+    <span class="badge">Building in public &middot; April 2026</span>
+  </nav>
+</header>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <h1>The <b>x402</b> payment path,<br>explained and executable</h1>
+  <p class="sub">Three stations. One HTTP request. A compliance-gated micropayment from an agent wallet to a merchant endpoint, settled on Base in under two seconds. Every step diagrammed, coded, and runnable.</p>
+  <p class="cite">Visual system: <a href="https://stablecoinatlas.com/legend" target="_blank">StablecoinAtlas.com</a> &middot; Protocol: <a href="https://www.x402.org" target="_blank">x402.org</a></p>
+</section>
+
+<!-- ═══════════════ PATH LABEL ═══════════════ -->
+<div class="path-intro">STP Path D4 &middot; x402 Basic &middot; 3 Stations</div>
+
+<!-- ═══════════════ JOURNEY STRIP ═══════════════ -->
+<div class="journey-strip" id="journey-strip">
+  <div class="journey-strip-hdr">
+    <span class="journey-strip-title">STP Journey &middot; 8 Stages</span>
+    <span class="journey-strip-legend">
+      <span style="color:var(--d-neutral);">&#9679;</span> Active
+      <span style="color:var(--slate-600); margin-left:6px;">&#9675;</span> Skipped
+      &middot;
+      <a href="https://stablecoinatlas.com/legend" target="_blank">Full legend</a>
+    </span>
+  </div>
+
+  <div class="journey-rail" id="journey-rail">
+    <!-- 8 stage nodes — each carries data attributes for wiring -->
+
+    <!-- S1 Intent (neutral) → Band 1 -->
+    <div class="stage-node active" data-stage="0" data-band="1" style="--node-color: var(--d-neutral);">
+      <span class="here-marker">You are here</span>
+      <div class="stage-dot">1</div>
+      <span class="stage-label">Intent</span>
+      <span class="stage-band-link">Step 1</span>
+    </div>
+
+    <!-- S2 Identity — skipped -->
+    <div class="stage-node dimmed" data-stage="1" style="--node-color: var(--d-identity);">
+      <span class="skip-tooltip">No separate KYC gate in x402 Basic</span>
+      <div class="stage-dot">2</div>
+      <span class="stage-label">Identity</span>
+      <span class="stage-band-link">&mdash;</span>
+    </div>
+
+    <!-- S3 Discovery → Band 2 -->
+    <div class="stage-node active" data-stage="2" data-band="2" style="--node-color: var(--d-discovery);">
+      <span class="here-marker">You are here</span>
+      <div class="stage-dot">3</div>
+      <span class="stage-label">Discovery</span>
+      <span class="stage-band-link">Step 2</span>
+    </div>
+
+    <!-- S4 Negotiation — skipped -->
+    <div class="stage-node dimmed" data-stage="3" style="--node-color: var(--d-reserves);">
+      <span class="skip-tooltip">Exact-amount scheme — no negotiation</span>
+      <div class="stage-dot">4</div>
+      <span class="stage-label">Negotiation</span>
+      <span class="stage-band-link">&mdash;</span>
+    </div>
+
+    <!-- S5 Transport → Band 3 -->
+    <div class="stage-node active" data-stage="4" data-band="3" style="--node-color: var(--d-transfer);">
+      <span class="here-marker">You are here</span>
+      <div class="stage-dot">5</div>
+      <span class="stage-label">Transport</span>
+      <span class="stage-band-link">Step 3</span>
+    </div>
+
+    <!-- S6 Authorization → Band 3 -->
+    <div class="stage-node active" data-stage="5" data-band="3" style="--node-color: var(--d-execution);">
+      <span class="here-marker">You are here</span>
+      <div class="stage-dot">6</div>
+      <span class="stage-label">Authorization</span>
+      <span class="stage-band-link">Step 3</span>
+    </div>
+
+    <!-- STATE TRANSITION between S6 and S7 -->
+
+    <!-- S7 Facilitation → Band 3 -->
+    <div class="stage-node active" data-stage="6" data-band="3" style="--node-color: var(--d-token);">
+      <span class="here-marker">You are here</span>
+      <div class="stage-dot">7</div>
+      <span class="stage-label">Facilitation</span>
+      <span class="stage-band-link">Step 3</span>
+    </div>
+
+    <!-- S8 Finality → Band 3 -->
+    <div class="stage-node active" data-stage="7" data-band="3" style="--node-color: var(--d-reporting);">
+      <span class="here-marker">You are here</span>
+      <div class="stage-dot">8</div>
+      <span class="stage-label">Finality</span>
+      <span class="stage-band-link">Step 3</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BAND 1 — STEP 1 · AGENT WALLET
+     ═══════════════════════════════════════════════════════════ -->
+<section class="band" id="band-1" data-stages="0">
+<div class="band-inner">
+
+  <!-- Mini-stack: L4+L5 lit (WALLET archetype) -->
+  <div class="stack-col">
+    <svg viewBox="0 0 380 210">
+      <rect class="b-execution" x="70" y="46" width="220" height="22" />
+      <rect class="b-transfer"  x="70" y="68" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="90" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="112" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="134" width="220" height="22" />
+      <text class="layer-lbl"     x="76" y="61">L5 APPLICATION</text>
+      <text class="layer-lbl"     x="76" y="83">L4 ACCOUNT</text>
+      <text class="layer-lbl-dim" x="76" y="105">L3 EXECUTION</text>
+      <text class="layer-lbl-dim" x="76" y="127">L2 CONSENSUS</text>
+      <text class="layer-lbl-dim" x="76" y="149">L1 NETWORK</text>
+      <line class="enf" x1="68" y1="90" x2="292" y2="90" />
+      <path class="bracket" d="M 68 50 L 58 50 L 58 86 L 68 86" />
+      <text class="chain-tag" x="290" y="38">BASE</text>
+    </svg>
+  </div>
+
+  <!-- Prose + tabs -->
+  <div>
+    <div class="step-hdr">
+      <h3>Step 1 &middot; Agent Wallet</h3>
+      <p class="analog">The customer&rsquo;s bank-app login &mdash; identity and spending authority established before the first HTTP request.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="narrative" data-band="1">Narrative</button>
+      <button class="tab" data-tab="code" data-band="1">Code</button>
+      <button class="tab" data-tab="response" data-band="1">Response</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="narrative" data-band="1">
+      <div class="narrative">
+        <p>A Coinbase Smart Wallet on Base. The agent holds keys via passkey (WebAuthn), delegates spending authority through <strong>EIP-1193</strong>, and signs EIP-3009 authorizations for gasless USDC transfers. Identity and funding are established at <strong>L4 Account</strong> and <strong>L5 Application</strong> &mdash; both above the enforcement line.</p>
+        <dl class="meta-strip">
+          <dt>Wallet</dt><dd>Coinbase Smart Wallet (ERC-4337)</dd>
+          <dt>Chain</dt><dd>Base Sepolia (testnet)</dd>
+          <dt>Asset</dt><dd>USDC (Circle, testnet faucet)</dd>
+          <dt>Latency</dt><dd>Instant &middot; no on-chain tx yet</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="code" data-band="1">
+      <div class="code-panel">
+        <div class="code-block"><span class="comment">// 1. Connect wallet via EIP-1193</span>
+<span class="keyword">const</span> [address] = <span class="keyword">await</span> window.ethereum
+  .<span class="fn">request</span>({ <span class="string">method</span>: <span class="string">'eth_requestAccounts'</span> });
+
+<span class="comment">// 2. Verify chain (Base Sepolia = 84532)</span>
+<span class="keyword">const</span> chainId = <span class="keyword">await</span> window.ethereum
+  .<span class="fn">request</span>({ <span class="string">method</span>: <span class="string">'eth_chainId'</span> });
+
+<span class="comment">// 3. Read USDC balance</span>
+<span class="keyword">const</span> balance = <span class="keyword">await</span> usdc.<span class="fn">balanceOf</span>(address);
+<span class="fn">console.log</span>(<span class="string">`Agent: ${</span>address<span class="string">}, Balance: ${</span>balance<span class="string">} USDC`</span>);</div>
+        <div class="run-bar">
+          <button class="run-btn" onclick="runStep(1)">&#9654; Run</button>
+          <span class="run-status" id="status-1">Simulated &middot; no wallet required</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="response" data-band="1">
+      <div class="response-panel">
+        <p class="response-empty" id="empty-1">Run the code to see the response.</p>
+        <div class="response-block" id="resp-1"><span class="status-ok">&#10003; Wallet connected</span>
+
+<span class="hdr-key">address:</span>  <span class="hdr-val">0x7a3B...c4F2</span>
+<span class="hdr-key">chainId:</span>  <span class="hdr-val">84532 (Base Sepolia)</span>
+<span class="hdr-key">balance:</span>  <span class="json-num">1,247.50</span> <span class="hdr-val">USDC</span>
+<span class="hdr-key">wallet:</span>   <span class="hdr-val">Coinbase Smart Wallet (ERC-4337)</span>
+<span class="hdr-key">signer:</span>  <span class="hdr-val">WebAuthn passkey</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BAND 2 — STEP 2 · 402 PAYMENT GATE
+     ═══════════════════════════════════════════════════════════ -->
+<section class="band" id="band-2" data-stages="2">
+<div class="band-inner">
+
+  <!-- Mini-stack: L3 single-layer lit (CHECKPOINT archetype) -->
+  <div class="stack-col">
+    <svg viewBox="0 0 380 210">
+      <rect class="b-dim"       x="70" y="46" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="68" width="220" height="22" />
+      <rect class="b-reporting" x="70" y="90" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="112" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="134" width="220" height="22" />
+      <text class="layer-lbl-dim" x="76" y="61">L5 APPLICATION</text>
+      <text class="layer-lbl-dim" x="76" y="83">L4 ACCOUNT</text>
+      <text class="layer-lbl"     x="76" y="105">L3 EXECUTION</text>
+      <text class="layer-lbl-dim" x="76" y="127">L2 CONSENSUS</text>
+      <text class="layer-lbl-dim" x="76" y="149">L1 NETWORK</text>
+      <line class="enf" x1="68" y1="90" x2="292" y2="90" />
+      <!-- Checkpoint caret at L3 -->
+      <line x1="52" y1="101" x2="65" y2="101" stroke="#0f172a" stroke-width="2" stroke-linecap="round" />
+      <polygon points="67,101 60,97 60,105" fill="#0f172a" stroke="#0f172a" stroke-width="1" />
+      <text class="chain-tag" x="290" y="38">BASE</text>
+      <!-- Small red octagon checkpoint marker -->
+      <polygon class="chk-oct" points="180,170 186,174 186,181 180,185 174,181 174,174" />
+      <text x="180" y="197" text-anchor="middle" font-family="var(--font-mono)" font-size="7" fill="#be123c" font-weight="700" letter-spacing="0.08em">GATE</text>
+    </svg>
+  </div>
+
+  <div>
+    <div class="step-hdr">
+      <h3>Step 2 &middot; HTTP 402 Payment Gate</h3>
+      <p class="analog">The locked door &mdash; the server returns <code style="font-family:var(--font-mono);font-size:12px;color:var(--accent);">402 Payment Required</code> with machine-readable payment terms in the header.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="narrative" data-band="2">Narrative</button>
+      <button class="tab" data-tab="code" data-band="2">Code</button>
+      <button class="tab" data-tab="response" data-band="2">Response</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="narrative" data-band="2">
+      <div class="narrative">
+        <p>The agent hits the merchant endpoint. Without a payment header, the Cloudflare Worker returns <strong>402 Payment Required</strong> &mdash; the HTTP status code that has waited 25 years for this use case. The <code style="font-family:var(--font-mono);font-size:12px;">PAYMENT-REQUIRED</code> header contains base64-encoded JSON: scheme, network, asset, amount, payTo address, and resource identifier.</p>
+        <p>This is a <strong>Gate</strong> checkpoint at <strong>L3 Execution</strong>, exactly on the enforcement line. The payment IS the authentication &mdash; no API key, no OAuth, no account. The gate lives at the boundary between policy and code.</p>
+        <dl class="meta-strip">
+          <dt>Endpoint</dt><dd>stablekya.com/api/report</dd>
+          <dt>Status</dt><dd>402 Payment Required</dd>
+          <dt>Checkpoint</dt><dd>Gate &middot; code-enforced</dd>
+          <dt>Latency</dt><dd>&lt;50ms (Cloudflare edge)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="code" data-band="2">
+      <div class="code-panel">
+        <div class="code-block"><span class="comment">// Hit the merchant gate — no payment header yet</span>
+<span class="keyword">const</span> gate = <span class="keyword">await</span> <span class="fn">fetch</span>(
+  <span class="string">'https://stablekya.com/api/report'</span>
+);
+
+<span class="comment">// Decode the payment requirements</span>
+<span class="keyword">const</span> header = gate.headers.<span class="fn">get</span>(<span class="string">'PAYMENT-REQUIRED'</span>);
+<span class="keyword">const</span> requirements = <span class="type">JSON</span>.<span class="fn">parse</span>(
+  <span class="fn">atob</span>(header)
+).accepts[<span class="num">0</span>];
+
+<span class="fn">console.log</span>(gate.status);       <span class="comment">// 402</span>
+<span class="fn">console.log</span>(requirements.asset); <span class="comment">// "USDC"</span>
+<span class="fn">console.log</span>(requirements.amount);<span class="comment">// "1000" (= $0.001)</span></div>
+        <div class="run-bar">
+          <button class="run-btn" onclick="runStep(2)">&#9654; Run</button>
+          <span class="run-status" id="status-2">Simulated &middot; hits the 402 gate</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="response" data-band="2">
+      <div class="response-panel">
+        <p class="response-empty" id="empty-2">Run the code to see the response.</p>
+        <div class="response-block" id="resp-2"><span class="status-402">HTTP/1.1 402 Payment Required</span>
+
+<span class="hdr-key">PAYMENT-REQUIRED:</span> <span class="hdr-val">eyJhY2NlcHRzIjpbey...</span>
+
+<span class="comment">// Decoded:</span>
+{
+  <span class="json-key">"accepts"</span>: [{
+    <span class="json-key">"scheme"</span>:   <span class="json-str">"exact"</span>,
+    <span class="json-key">"network"</span>:  <span class="json-str">"base-sepolia"</span>,
+    <span class="json-key">"asset"</span>:    <span class="json-str">"USDC"</span>,
+    <span class="json-key">"amount"</span>:   <span class="json-str">"1000"</span>,
+    <span class="json-key">"payTo"</span>:    <span class="json-str">"0x9f2A...b7E1"</span>,
+    <span class="json-key">"resource"</span>: <span class="json-str">"kya-compliance-report-v1"</span>
+  }]
+}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════
+     BAND 3 — STEP 3 · PAYMENT & DELIVERY
+     ═══════════════════════════════════════════════════════════ -->
+<section class="band" id="band-3" data-stages="4,5,6,7">
+<div class="band-inner">
+
+  <!-- Mini-stack: L5+L4+L3 lit -->
+  <div class="stack-col">
+    <svg viewBox="0 0 380 210">
+      <rect class="b-execution" x="70" y="46" width="220" height="22" />
+      <rect class="b-transfer"  x="70" y="68" width="220" height="22" />
+      <rect class="b-identity"  x="70" y="90" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="112" width="220" height="22" />
+      <rect class="b-dim"       x="70" y="134" width="220" height="22" />
+      <text class="layer-lbl"     x="76" y="61">L5 APPLICATION</text>
+      <text class="layer-lbl"     x="76" y="83">L4 ACCOUNT</text>
+      <text class="layer-lbl"     x="76" y="105">L3 EXECUTION</text>
+      <text class="layer-lbl-dim" x="76" y="127">L2 CONSENSUS</text>
+      <text class="layer-lbl-dim" x="76" y="149">L1 NETWORK</text>
+      <line class="enf" x1="68" y1="90" x2="292" y2="90" />
+      <path class="bracket" d="M 68 50 L 58 50 L 58 108 L 68 108" />
+      <text class="chain-tag" x="290" y="38">BASE</text>
+    </svg>
+  </div>
+
+  <div>
+    <div class="step-hdr">
+      <h3>Step 3 &middot; Payment &amp; Delivery</h3>
+      <p class="analog">The atomic exchange &mdash; signed payment, OFAC screening, on-chain settlement, and resource delivery in a single retry of the original request.</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="narrative" data-band="3">Narrative</button>
+      <button class="tab" data-tab="code" data-band="3">Code</button>
+      <button class="tab" data-tab="response" data-band="3">Response</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="narrative" data-band="3">
+      <div class="narrative">
+        <p>The agent signs an <strong>EIP-3009</strong> <code style="font-family:var(--font-mono);font-size:12px;">transferWithAuthorization</code> for 1000 units ($0.001 USDC), attaches the signature to the original request, and retries. The <strong>Coinbase CDP x402 facilitator</strong> screens the transfer against <strong>Chainalysis OFAC</strong> (code-enforced gate at L3), submits to Base, and returns the resource on <strong>200 OK</strong>.</p>
+        <p>Three layers light simultaneously: <strong>L5 Application</strong> (the retry), <strong>L4 Account</strong> (the signed authorization), and <strong>L3 Execution</strong> (OFAC screening + on-chain settlement). The bracket spans the enforcement line &mdash; policy and code work together.</p>
+        <dl class="meta-strip">
+          <dt>Facilitator</dt><dd>Coinbase CDP x402</dd>
+          <dt>Screening</dt><dd>Chainalysis OFAC (code-enforced)</dd>
+          <dt>Settlement</dt><dd>Base Sepolia &middot; ~2s finality</dd>
+          <dt>Delivery</dt><dd>KYA Compliance Report (PDF)</dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="code" data-band="3">
+      <div class="code-panel">
+        <div class="code-block"><span class="comment">// 1. Sign EIP-3009 gasless USDC transfer</span>
+<span class="keyword">const</span> sig = <span class="keyword">await</span> wallet.<span class="fn">signTypedData</span>({
+  <span class="string">domain</span>: { <span class="string">name</span>: <span class="string">'USDC'</span>, <span class="string">chainId</span>: <span class="num">84532</span> },
+  <span class="string">types</span>: { TransferWithAuthorization: [<span class="comment">/*...*/</span>] },
+  <span class="string">message</span>: {
+    <span class="string">from</span>: address,
+    <span class="string">to</span>:   requirements.payTo,
+    <span class="string">value</span>: <span class="type">BigInt</span>(requirements.amount),
+  },
+});
+
+<span class="comment">// 2. Retry with payment signature attached</span>
+<span class="keyword">const</span> result = <span class="keyword">await</span> <span class="fn">fetch</span>(
+  <span class="string">'https://stablekya.com/api/report'</span>,
+  { <span class="string">headers</span>: { <span class="string">'X-PAYMENT'</span>: <span class="fn">btoa</span>(<span class="type">JSON</span>.<span class="fn">stringify</span>({
+      <span class="string">scheme</span>: <span class="string">'exact'</span>,
+      <span class="string">network</span>: <span class="string">'base-sepolia'</span>,
+      <span class="string">payload</span>: { <span class="string">signature</span>: sig },
+  })) } }
+);
+
+<span class="keyword">const</span> pdf = <span class="keyword">await</span> result.<span class="fn">blob</span>();  <span class="comment">// 200 OK + PDF</span></div>
+        <div class="run-bar">
+          <button class="run-btn" onclick="runStep(3)">&#9654; Run</button>
+          <span class="run-status" id="status-3">Simulated &middot; sign, screen, settle, deliver</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="response" data-band="3">
+      <div class="response-panel">
+        <p class="response-empty" id="empty-3">Run the code to see the response.</p>
+        <div class="response-block" id="resp-3"><span class="comment">// Facilitator pipeline (Coinbase CDP):</span>
+<span class="hdr-key">1. OFAC screen:</span>  <span class="status-ok">PASS</span>  <span class="hdr-val">(Chainalysis, &lt;80ms)</span>
+<span class="hdr-key">2. Submit tx:</span>   <span class="hdr-val">0xa3f8...9c12 (Base Sepolia)</span>
+<span class="hdr-key">3. Confirmed:</span>   <span class="hdr-val">block #18,429,017 (1.8s)</span>
+<span class="hdr-key">4. Settlement:</span>  <span class="json-num">0.001 USDC</span> <span class="hdr-val">→ 0x9f2A...b7E1</span>
+
+<span class="status-ok">HTTP/1.1 200 OK</span>
+<span class="hdr-key">Content-Type:</span>  <span class="hdr-val">application/pdf</span>
+<span class="hdr-key">Content-Length:</span> <span class="json-num">142,847</span>
+<span class="hdr-key">X-Payment-Tx:</span>  <span class="hdr-val">0xa3f8...9c12</span>
+<span class="hdr-key">X-Settlement:</span>  <span class="json-str">"final"</span>
+
+<span class="comment">// Resource delivered: kya-compliance-report-v1.pdf</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="ftr">
+  <p>Visual system: <a href="https://stablecoinatlas.com">StablecoinAtlas.com</a> &middot; Protocol: <a href="https://x402.org">x402.org</a> &middot; <a href="mailto:leo@stableclarity.com">leo@stableclarity.com</a></p>
+</footer>
+
+</div><!-- .page -->
+
+<!-- ═══════════════ INTERACTION ═══════════════ -->
+<script>
+// ── Journey strip: stage ↔ band mapping ──
+const STAGE_DATA = [
+  { stage: 0, band: 1, color: '#64748b', label: 'Intent',        active: true  },
+  { stage: 1, band: null, color: '#60A5FA', label: 'Identity',    active: false },
+  { stage: 2, band: 2, color: '#A78BFA', label: 'Discovery',     active: true  },
+  { stage: 3, band: null, color: '#FBBF24', label: 'Negotiation', active: false },
+  { stage: 4, band: 3, color: '#2DD4BF', label: 'Transport',     active: true  },
+  { stage: 5, band: 3, color: '#FB923C', label: 'Authorization',  active: true  },
+  { stage: 6, band: 3, color: '#34D399', label: 'Facilitation',   active: true  },
+  { stage: 7, band: 3, color: '#FB7185', label: 'Finality',       active: true  },
+];
+
+// ── Draw colored route segments between active nodes ──
+function drawRouteSegments() {
+  // Remove existing segments
+  document.querySelectorAll('.route-segment').forEach(el => el.remove());
+
+  const rail = document.getElementById('journey-rail');
+  const nodes = rail.querySelectorAll('.stage-node');
+  const railRect = rail.getBoundingClientRect();
+
+  for (let i = 0; i < nodes.length - 1; i++) {
+    const a = STAGE_DATA[i];
+    const b = STAGE_DATA[i + 1];
+    if (!a.active || !b.active) continue;
+
+    const dotA = nodes[i].querySelector('.stage-dot');
+    const dotB = nodes[i + 1].querySelector('.stage-dot');
+    const rectA = dotA.getBoundingClientRect();
+    const rectB = dotB.getBoundingClientRect();
+
+    const seg = document.createElement('div');
+    seg.className = 'route-segment';
+    // Use average color of the two nodes
+    seg.style.background = a.color;
+    seg.style.opacity = '0.5';
+    seg.style.left = (rectA.left + rectA.width / 2 - railRect.left) + 'px';
+    seg.style.width = (rectB.left + rectB.width / 2 - rectA.left - rectA.width / 2) + 'px';
+    rail.appendChild(seg);
+  }
+}
+
+// Draw segments after layout
+window.addEventListener('load', drawRouteSegments);
+window.addEventListener('resize', drawRouteSegments);
+
+// ── Scroll sync: IntersectionObserver ──
+let currentBand = null;
+
+function updateJourneyHighlight(bandNum) {
+  if (bandNum === currentBand) return;
+  currentBand = bandNum;
+
+  document.querySelectorAll('.stage-node').forEach(node => {
+    node.classList.remove('current');
+    const sd = STAGE_DATA[parseInt(node.dataset.stage)];
+    if (!sd) return;
+
+    // "current" = this node maps to the visible band
+    if (sd.active && sd.band === bandNum) {
+      node.classList.add('current');
+    }
+  });
+}
+
+// Observe each band
+const observer = new IntersectionObserver((entries) => {
+  // Find the most visible band
+  let best = null;
+  let bestRatio = 0;
+  entries.forEach(entry => {
+    if (entry.isIntersecting && entry.intersectionRatio > bestRatio) {
+      best = entry.target;
+      bestRatio = entry.intersectionRatio;
+    }
+  });
+  if (best) {
+    const bandNum = parseInt(best.id.replace('band-', ''));
+    updateJourneyHighlight(bandNum);
+  }
+}, {
+  threshold: [0.1, 0.3, 0.5, 0.7],
+  rootMargin: '-80px 0px -30% 0px'
+});
+
+document.querySelectorAll('.band').forEach(band => observer.observe(band));
+
+// Also handle scroll for fallback (when no band is intersecting enough)
+let ticking = false;
+window.addEventListener('scroll', () => {
+  if (ticking) return;
+  ticking = true;
+  requestAnimationFrame(() => {
+    const bands = document.querySelectorAll('.band');
+    const viewMid = window.innerHeight * 0.4;
+    let closest = null;
+    let closestDist = Infinity;
+    bands.forEach(band => {
+      const rect = band.getBoundingClientRect();
+      const bandMid = rect.top + rect.height / 2;
+      const dist = Math.abs(bandMid - viewMid);
+      if (dist < closestDist) {
+        closestDist = dist;
+        closest = band;
+      }
+    });
+    if (closest) {
+      const bandNum = parseInt(closest.id.replace('band-', ''));
+      updateJourneyHighlight(bandNum);
+    }
+    ticking = false;
+  });
+});
+
+// ── Click navigation ──
+document.querySelectorAll('.stage-node').forEach(node => {
+  node.addEventListener('click', () => {
+    const sd = STAGE_DATA[parseInt(node.dataset.stage)];
+    if (!sd) return;
+    if (sd.active && sd.band) {
+      const target = document.getElementById(`band-${sd.band}`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  });
+});
+
+// ── Sticky behavior ──
+const strip = document.getElementById('journey-strip');
+const stripTop = strip.offsetTop;
+
+function checkSticky() {
+  // Make sticky once user has scrolled past its natural position
+  if (window.scrollY > stripTop - 53) {
+    strip.classList.add('stuck');
+  } else {
+    strip.classList.remove('stuck');
+  }
+}
+window.addEventListener('scroll', checkSticky, { passive: true });
+window.addEventListener('load', checkSticky);
+
+// Highlight band 1 by default on load
+window.addEventListener('load', () => updateJourneyHighlight(1));
+
+// ── Tab switching ──
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const band = btn.dataset.band;
+    const tab = btn.dataset.tab;
+    document.querySelectorAll(`.tab[data-band="${band}"]`).forEach(t => t.classList.remove('active'));
+    document.querySelectorAll(`.tab-panel[data-band="${band}"]`).forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector(`.tab-panel[data-panel="${tab}"][data-band="${band}"]`).classList.add('active');
+  });
+});
+
+// ── Simulated run ──
+function runStep(step) {
+  const btn = event.target;
+  const status = document.getElementById(`status-${step}`);
+  const empty = document.getElementById(`empty-${step}`);
+  const resp = document.getElementById(`resp-${step}`);
+
+  btn.disabled = true;
+  status.textContent = 'Executing...';
+  status.style.color = 'var(--accent)';
+
+  const delays = { 1: 600, 2: 400, 3: 1800 };
+  const labels = {
+    1: 'Wallet connected · 0.6s',
+    2: '402 received · decoded · 0.4s',
+    3: 'Signed → screened → settled → delivered · 1.8s',
+  };
+
+  setTimeout(() => {
+    status.textContent = labels[step];
+    status.style.color = 'var(--success)';
+    btn.disabled = false;
+    if (empty) empty.style.display = 'none';
+    if (resp) resp.style.display = 'block';
+
+    const respTab = document.querySelector(`.tab[data-tab="response"][data-band="${step}"]`);
+    if (respTab) respTab.click();
+  }, delays[step]);
+}
+</script>
+
+</body>
+</html>
