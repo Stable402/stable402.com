@@ -1,0 +1,636 @@
+---
+/**
+ * /pay-sh — Analysis of pay.sh (Solana Foundation + Google Cloud, 2026-05-05).
+ *
+ * Frame: pay.sh is the largest enterprise endorsement x402 has received.
+ * It is also Solana-only and effectively silent on the regulated
+ * counterparty layer. Stable402's role next to pay.sh is the chain-agnostic,
+ * compliance-aware reference.
+ *
+ * Voice matches /cloudflare: declarative, named-vendor, honesty-marker
+ * conventions. No fluff.
+ *
+ * NOTE: forward links to /compliance-gap will 404 until that page ships
+ * (Phase A2 of BUILD_PLAN_pay_sh_response.md).
+ */
+import Main from '../layouts/Main.astro';
+---
+
+<Main
+  title="x402 in production — pay.sh, Google Cloud, and the Solana reference implementation"
+  description="pay.sh, launched May 2026 by the Solana Foundation in collaboration with Google Cloud, is the largest enterprise endorsement of x402 to date. It is also Solana-only and silent on the regulated counterparty layer. This page is what changes — and what doesn't."
+>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════ -->
+  <section class="ps-hero">
+    <p class="ps-eyebrow">Industry analysis · 2026-05-07</p>
+    <h1>x402 in production: <span class="ps-accent">pay.sh</span>.</h1>
+    <p class="ps-subhead">
+      On 2026-05-05 the <strong>Solana Foundation</strong> and <strong>Google Cloud</strong>
+      launched <a href="https://pay.sh" target="_blank" rel="noopener noreferrer">pay.sh</a> —
+      a payment gateway that lets autonomous agents discover and call paid APIs
+      using <strong>x402</strong> over Solana. <strong>Gemini, BigQuery, BigTable, Cloud Run, and
+      Vertex AI</strong> ship as x402-payable endpoints behind it. This is the largest enterprise
+      endorsement x402 has received. It is also Solana-only, and the regulated counterparty
+      layer is left blank by design — which is where Stable402 fits.
+    </p>
+
+    <p class="ps-honesty">
+      <strong>Reading note.</strong> Quotations on this page are taken verbatim from the
+      Solana Foundation announcement and the public <code>pay.sh/docs</code> overview. We
+      are not affiliated with the Solana Foundation, Google Cloud, or pay.sh. This is
+      independent analysis for the x402 practitioner audience.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 1: WHAT PAY.SH IS
+       ═══════════════════════════════════════════════════════ -->
+  <section class="ps-section">
+    <p class="ps-section-eyebrow">Section 1</p>
+    <h2 class="ps-section-title">What pay.sh is.</h2>
+    <p class="ps-section-body">
+      A hosted payment gateway plus an open-source CLI plus a facilitator catalog.
+      The agent holds a Solana wallet; the gateway proxies requests to API providers;
+      the agent pays per call in <em>"stablecoins on Solana"</em>; providers receive
+      fiat. The CLI wraps existing tools — the docs example is
+      <code>pay --sandbox curl https://payment-debugger.vercel.app/mpp/quote/AAPL</code> —
+      and "detects MPP or x402 payment challenges, asks the local wallet to authorize
+      signing, and retries the request with a payment proof."
+    </p>
+
+    <div class="ps-grid ps-grid--four">
+      <div class="ps-card">
+        <p class="ps-card-label">Launched</p>
+        <p class="ps-card-value">2026-05-05</p>
+        <p class="ps-card-detail">Solana Foundation in collaboration with Google Cloud. Hosted on GCP.</p>
+      </div>
+      <div class="ps-card">
+        <p class="ps-card-label">Settlement</p>
+        <p class="ps-card-value">Solana · stablecoins</p>
+        <p class="ps-card-detail">Specific stablecoins are not named in the launch materials. Providers receive fiat.</p>
+      </div>
+      <div class="ps-card">
+        <p class="ps-card-label">Launch facilitators</p>
+        <p class="ps-card-value">Eight</p>
+        <p class="ps-card-detail">PayAI, Crossmint, Merit Systems, Corbits, MoonPay, Sponge Wallet, ATXP, Tektonic.</p>
+      </div>
+      <div class="ps-card">
+        <p class="ps-card-label">AI clients supported</p>
+        <p class="ps-card-value">Five named</p>
+        <p class="ps-card-detail">Gemini, Claude Code, Codex, Openclaw, Hermes.</p>
+      </div>
+    </div>
+
+    <p class="ps-section-body" style="margin-top:24px;">
+      The catalog spans four buckets — <strong>eCommerce</strong> (Rye, BigCommerce, Purch),
+      <strong>Data and intelligence</strong> (Exa, Dune Analytics, Nansen, ATXP),
+      <strong>Communications</strong> (AgentMail, StablePhone, StableEmail), and
+      <strong>Solana Infrastructure</strong> (Helius, Alchemy, Quicknode, Allium, The Graph) —
+      plus the Google Cloud APIs themselves: <strong>Gemini Inference</strong>,
+      <strong>BigQuery</strong>, <strong>BigTable</strong>, <strong>Cloud Run</strong>,
+      <strong>Vertex AI Model Garden</strong>, all shipped as x402-payable endpoints.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 2: PROTOCOL POSTURE
+       ═══════════════════════════════════════════════════════ -->
+  <section class="ps-section">
+    <p class="ps-section-eyebrow">Section 2</p>
+    <h2 class="ps-section-title">The protocol posture.</h2>
+    <p class="ps-section-body">
+      pay.sh is built on x402 and MPP — what its docs call <em>"machine-native payment
+      protocols designed for agent-to-API commerce."</em> The CLI <em>"detects MPP or x402
+      payment challenges"</em> and either is acceptable as a payment-required signal.
+      The pay.sh docs explicitly endorse the open-standards posture:
+      <em>"we believe in supporting open rails that any developer, protocol, or facilitator
+      can extend and build on."</em>
+    </p>
+
+    <p class="ps-section-body">
+      This is the load-bearing line for x402's industry standing. Two days ago x402 was
+      <em>"Coinbase's pet protocol."</em> Today it is the payment standard for a
+      Solana-Foundation-and-Google-Cloud gateway with Gemini, Vertex AI, BigQuery, BigTable,
+      and Cloud Run shipping behind it. The vocabulary — <code>facilitator</code>,
+      <code>challenge</code>, <code>payment proof</code>, <code>HTTP 402</code> — matches
+      Coinbase's original x402 specification verbatim. Stable402 mirrors that vocabulary
+      precisely. We ride the standards alignment rather than fork it.
+    </p>
+
+    <div class="ps-arch">
+      <svg viewBox="0 0 720 220" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="x402 and MPP as sibling machine-native payment protocols, with x402 spanning EVM chains and MPP native to Solana.">
+        <defs>
+          <marker id="psarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#475569" />
+          </marker>
+        </defs>
+
+        <g font-family="var(--font-sans, system-ui)" font-size="11">
+          <!-- Agent -->
+          <rect x="20" y="80" width="110" height="60" rx="6" fill="#fafbfc" stroke="#cbd5e1" />
+          <text x="75" y="105" text-anchor="middle" font-weight="700" fill="#0f172a">Agent</text>
+          <text x="75" y="122" text-anchor="middle" fill="#475569" font-size="10">Wallet · CLI</text>
+
+          <!-- Gateway -->
+          <rect x="170" y="60" width="160" height="100" rx="6" fill="#fef9c3" stroke="#facc15" stroke-width="1.5" />
+          <text x="250" y="84" text-anchor="middle" font-weight="700" fill="#713f12">Gateway / Facilitator</text>
+          <text x="250" y="102" text-anchor="middle" fill="#854d0e" font-size="10">Detects challenge type</text>
+          <text x="250" y="118" text-anchor="middle" fill="#854d0e" font-size="10">Authorizes · settles · proxies</text>
+          <text x="250" y="138" text-anchor="middle" fill="#713f12" font-size="9" font-style="italic">pay.sh · CDP · Cloudflare</text>
+
+          <!-- x402 challenge -->
+          <rect x="370" y="20" width="160" height="60" rx="6" fill="#eff6ff" stroke="#3b82f6" />
+          <text x="450" y="44" text-anchor="middle" font-weight="700" fill="#1e3a8a">x402 challenge</text>
+          <text x="450" y="62" text-anchor="middle" fill="#1e40af" font-size="10">HTTP-native · cross-chain</text>
+
+          <!-- MPP challenge -->
+          <rect x="370" y="100" width="160" height="60" rx="6" fill="#f0fdf4" stroke="#10b981" />
+          <text x="450" y="124" text-anchor="middle" font-weight="700" fill="#064e3b">MPP challenge</text>
+          <text x="450" y="142" text-anchor="middle" fill="#065f46" font-size="10">Solana-native sibling</text>
+
+          <!-- Resource -->
+          <rect x="570" y="80" width="130" height="60" rx="6" fill="#fafbfc" stroke="#cbd5e1" />
+          <text x="635" y="105" text-anchor="middle" font-weight="700" fill="#0f172a">API provider</text>
+          <text x="635" y="122" text-anchor="middle" fill="#475569" font-size="10">Resource · paid endpoint</text>
+
+          <!-- Arrows -->
+          <line x1="130" y1="110" x2="170" y2="110" stroke="#475569" stroke-width="1.4" marker-end="url(#psarr)" />
+          <text x="150" y="103" text-anchor="middle" fill="#475569" font-size="9">request</text>
+
+          <line x1="330" y1="90" x2="370" y2="60" stroke="#475569" stroke-width="1.4" marker-end="url(#psarr)" />
+          <line x1="330" y1="130" x2="370" y2="130" stroke="#475569" stroke-width="1.4" marker-end="url(#psarr)" />
+          <text x="350" y="78" text-anchor="middle" fill="#475569" font-size="9">x402</text>
+          <text x="350" y="124" text-anchor="middle" fill="#475569" font-size="9">MPP</text>
+
+          <line x1="530" y1="110" x2="570" y2="110" stroke="#475569" stroke-width="1.4" marker-end="url(#psarr)" />
+          <text x="550" y="103" text-anchor="middle" fill="#475569" font-size="9">authorized</text>
+        </g>
+      </svg>
+    </div>
+
+    <p class="ps-arch-caption">
+      The gateway is the layer that decides; the challenge type is interchangeable. pay.sh
+      runs both x402 and MPP. The Coinbase CDP facilitator and Cloudflare's edge facilitator
+      run x402 across EVM chains. <strong>x402 is the cross-chain HTTP-native standard;
+      MPP is the Solana-native sibling.</strong> Both are open rails. Neither is a fork.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 3: NAMED VS LEFT BLANK
+       ═══════════════════════════════════════════════════════ -->
+  <section class="ps-section">
+    <p class="ps-section-eyebrow">Section 3</p>
+    <h2 class="ps-section-title">What the launch names. What it leaves blank.</h2>
+    <p class="ps-section-body">
+      The single line in pay.sh's announcement that addresses compliance is this:
+      <em>"appropriate rate limits, quotas, and access controls so enterprise security and
+      compliance are never compromised."</em> That is the entire compliance posture in the
+      public materials. The rest of the regulated counterparty layer is deliberately
+      unspecified — by design, because it is not the gateway's job to specify it.
+      But somebody has to.
+    </p>
+
+    <div class="ps-twocol">
+      <div class="ps-col ps-col--named">
+        <p class="ps-col-eyebrow">Named in the launch</p>
+        <ul class="ps-col-list">
+          <li>Wallet as the account substitute (no API keys, no signups)</li>
+          <li>Gateway-managed rate limits, quotas, and access controls</li>
+          <li>Per-request pricing, no subscriptions, no minimum spend</li>
+          <li>Fiat settlement to providers ("providers receive funds in fiat")</li>
+          <li>Sandbox networks for development testing</li>
+          <li>Open-source CLI and registry</li>
+        </ul>
+      </div>
+      <div class="ps-col ps-col--blank">
+        <p class="ps-col-eyebrow">Left blank in the launch</p>
+        <ul class="ps-col-list">
+          <li>Who the regulated counterparty is on the fiat-out leg</li>
+          <li>Which entity holds the MSB / VASP designation</li>
+          <li>Travel Rule message handling for cross-border transfers</li>
+          <li>OFAC sanctions screening for agent wallets</li>
+          <li>Sanctioned-counterparty handling mid-flow</li>
+          <li>KYC posture for high-velocity micropayment volumes</li>
+          <li>Specific stablecoin issuer (USDC? PYUSD? unspecified)</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="ps-arch-caption" style="margin-top:18px;">
+      None of this is a criticism of pay.sh. It is a payment gateway, not a regulated
+      financial institution, and protocol-level openness is precisely why it works.
+      But the regulated counterparty layer is where the largest stablecoin and
+      agentic-payments incumbents — Circle, Paxos, Bridge, Catena Labs — actually live,
+      and it is where Stable402's analysis sits. <a href="/compliance-gap">See the
+      compliance gap map →</a>
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4: STABLE402'S ROLE NEXT TO PAY.SH
+       ═══════════════════════════════════════════════════════ -->
+  <section class="ps-section">
+    <p class="ps-section-eyebrow">Section 4</p>
+    <h2 class="ps-section-title">Stable402's role next to pay.sh.</h2>
+    <p class="ps-section-body">
+      pay.sh is a load-bearing implementation. Stable402 is a reference. They are
+      complementary, not competitive. Three concrete contributions Stable402 makes
+      that pay.sh — by design — does not.
+    </p>
+
+    <div class="ps-reason-list">
+      <div class="ps-reason">
+        <p class="ps-reason-num">01</p>
+        <p class="ps-reason-title">Multi-chain footprint, not Solana-only.</p>
+        <p class="ps-reason-body">
+          pay.sh runs on Solana. x402 is HTTP-native and chain-agnostic. The Coinbase CDP
+          x402 facilitator runs on EVM (Base Sepolia is what Stable402's home-page demo
+          settles to). Circle's Arc, Stripe's Tempo, and Ethereum mainnet are all
+          x402-addressable. Stable402 is the reference that maps the full footprint at
+          <a href="/multi-chain">/multi-chain</a> rather than committing to one chain.
+        </p>
+      </div>
+
+      <div class="ps-reason">
+        <p class="ps-reason-num">02</p>
+        <p class="ps-reason-title">Compliance-aware, not compliance-silent.</p>
+        <p class="ps-reason-body">
+          Where pay.sh's compliance posture is one sentence, Stable402 ships a four-leg
+          gap map at <a href="/compliance-gap">/compliance-gap</a> — the agent wallet,
+          the facilitator, the API provider, and the fiat-out leg, each labelled with
+          the regulatory question that has to be answered before the leg goes to
+          production. Stable402 is not the regulated counterparty. We name where the
+          regulated counterparty has to live, and which named industry players can be
+          that counterparty.
+        </p>
+      </div>
+
+      <div class="ps-reason">
+        <p class="ps-reason-num">03</p>
+        <p class="ps-reason-title">A reference layer agents can actually read.</p>
+        <p class="ps-reason-body">
+          The <a href="https://stablecoinatlas.com" target="_blank" rel="noopener noreferrer">StablecoinAtlas</a>
+          is the reference layer agents will read while transacting — 56+ paths across 8
+          rails, MCP-callable, x402-metered. pay.sh ships the gateway; the Atlas ships
+          the cartography. Stable402 is the live demo at the seam between them.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 5: LINKS OUT
+       ═══════════════════════════════════════════════════════ -->
+  <section class="ps-section">
+    <p class="ps-section-eyebrow">Section 5</p>
+    <h2 class="ps-section-title">Sources and further reading.</h2>
+
+    <div class="ps-links">
+      <a class="ps-link" href="https://pay.sh" target="_blank" rel="noopener noreferrer">
+        <p class="ps-link-title">pay.sh</p>
+        <p class="ps-link-desc">The gateway. The CLI. The catalog. Solana Foundation + Google Cloud, May 2026.</p>
+      </a>
+      <a class="ps-link" href="https://solana.com/news/solana-foundation-launches-pay-sh-in-collaboration-with-google-cloud" target="_blank" rel="noopener noreferrer">
+        <p class="ps-link-title">Solana Foundation announcement</p>
+        <p class="ps-link-desc">The launch post. Source for the named entities and partner list on this page.</p>
+      </a>
+      <a class="ps-link" href="https://x402.org" target="_blank" rel="noopener noreferrer">
+        <p class="ps-link-title">x402 protocol specification</p>
+        <p class="ps-link-desc">The HTTP 402 Payment Required specification pay.sh implements.</p>
+      </a>
+      <a class="ps-link" href="/compliance-gap">
+        <p class="ps-link-title">Stable402 — the compliance gap map</p>
+        <p class="ps-link-desc">The four-leg flow and the regulatory question at each leg.</p>
+      </a>
+      <a class="ps-link" href="/cloudflare">
+        <p class="ps-link-title">Stable402 — built on Cloudflare</p>
+        <p class="ps-link-desc">Architecture, the 40-LOC Worker, and why compliance enforcement belongs at the edge.</p>
+      </a>
+      <a class="ps-link" href="https://stablecoinatlas.com" target="_blank" rel="noopener noreferrer">
+        <p class="ps-link-title">StablecoinAtlas.com</p>
+        <p class="ps-link-desc">The cartography of compliance. 56+ paths, 8 rails, MCP-callable.</p>
+      </a>
+      <a class="ps-link" href="/">
+        <p class="ps-link-title">Stable402 — live demo</p>
+        <p class="ps-link-desc">x402 micropayment journey, end to end. Coinbase CDP facilitator on Base Sepolia.</p>
+      </a>
+      <a class="ps-link" href="mailto:leo@stableclarity.com">
+        <p class="ps-link-title">leo@stableclarity.com</p>
+        <p class="ps-link-desc">Direct contact. Fastest route for sponsor and partnership conversations.</p>
+      </a>
+    </div>
+  </section>
+
+</Main>
+
+<style>
+  /* ── Hero ─────────────────────────────────────────────────────── */
+  .ps-hero {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 56px 24px 36px;
+    text-align: center;
+  }
+  .ps-eyebrow {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #6b6b6b);
+    margin-bottom: 12px;
+  }
+  .ps-hero h1 {
+    font-family: var(--font-sans, system-ui);
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--text, #0f172a);
+    margin: 0 0 18px;
+    letter-spacing: -0.01em;
+  }
+  .ps-hero h1 .ps-accent {
+    color: var(--accent, #fbbf24);
+  }
+  .ps-subhead {
+    font-family: var(--font-sans, system-ui);
+    font-size: 16px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.65;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .ps-subhead strong {
+    color: var(--text, #0f172a);
+  }
+
+  .ps-honesty {
+    margin: 28px auto 0;
+    font-size: 12px;
+    color: var(--text-muted, #6b6b6b);
+    line-height: 1.6;
+    max-width: 680px;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-left: 3px solid var(--accent, #fbbf24);
+    text-align: left;
+    border-radius: 0 4px 4px 0;
+  }
+  .ps-honesty strong {
+    color: var(--text, #0f172a);
+  }
+  .ps-honesty code {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── Sections ─────────────────────────────────────────────────── */
+  .ps-section {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 24px 24px;
+  }
+  .ps-section-eyebrow {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0 0 8px;
+  }
+  .ps-section-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0 0 14px;
+    letter-spacing: -0.005em;
+  }
+  .ps-section-body {
+    font-family: var(--font-sans, system-ui);
+    font-size: 14px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.7;
+    max-width: 760px;
+    margin: 0 0 20px;
+  }
+  .ps-section-body em {
+    color: var(--text, #0f172a);
+    font-style: italic;
+  }
+  .ps-section-body code {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 12px;
+    background: #f1f5f9;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+
+  /* ── Stat cards (Section 1) ───────────────────────────────────── */
+  .ps-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 720px) {
+    .ps-grid--four {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1080px) {
+    .ps-grid--four {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
+  }
+  .ps-card {
+    padding: 14px 16px;
+    border: 1px solid var(--border, #e0ddd8);
+    border-left: 3px solid var(--accent, #fbbf24);
+    border-radius: 4px;
+    background: #fff;
+  }
+  .ps-card-label {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0 0 4px;
+  }
+  .ps-card-value {
+    font-family: var(--font-sans, system-ui);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0 0 6px;
+  }
+  .ps-card-detail {
+    font-size: 12px;
+    color: var(--text-muted, #6b6b6b);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* ── Architecture (Section 2) ─────────────────────────────────── */
+  .ps-arch {
+    margin: 8px 0 18px;
+    padding: 18px;
+    background: #fafbfc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+  .ps-arch svg {
+    width: 100%;
+    height: auto;
+    max-width: 720px;
+    display: block;
+    margin: 0 auto;
+  }
+  .ps-arch-caption {
+    font-size: 12px;
+    color: var(--text-muted, #6b6b6b);
+    line-height: 1.6;
+    max-width: 760px;
+  }
+  .ps-arch-caption strong {
+    color: var(--text, #0f172a);
+  }
+  .ps-arch-caption a {
+    color: var(--accent-dim, #422006);
+    border-bottom: 1px solid var(--accent, #fbbf24);
+    text-decoration: none;
+  }
+
+  /* ── Two-column compare (Section 3) ───────────────────────────── */
+  .ps-twocol {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 760px) {
+    .ps-twocol {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .ps-col {
+    padding: 18px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .ps-col--named {
+    border-left: 3px solid #10b981;
+  }
+  .ps-col--blank {
+    border-left: 3px solid #f59e0b;
+    background: #fffbeb;
+  }
+  .ps-col-eyebrow {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0 0 12px;
+  }
+  .ps-col--named .ps-col-eyebrow {
+    color: #047857;
+  }
+  .ps-col--blank .ps-col-eyebrow {
+    color: #b45309;
+  }
+  .ps-col-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.65;
+  }
+  .ps-col-list li {
+    margin-bottom: 6px;
+  }
+
+  /* ── Reason list (Section 4) ──────────────────────────────────── */
+  .ps-reason-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .ps-reason {
+    padding: 18px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .ps-reason-num {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    color: var(--accent, #fbbf24);
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: 0.06em;
+  }
+  .ps-reason-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  .ps-reason-body {
+    font-size: 13px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.7;
+    margin: 0;
+  }
+  .ps-reason-body a {
+    color: var(--accent-dim, #422006);
+    border-bottom: 1px solid var(--accent, #fbbf24);
+    text-decoration: none;
+  }
+
+  /* ── Links out (Section 5) ────────────────────────────────────── */
+  .ps-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  @media (min-width: 720px) {
+    .ps-links {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .ps-link {
+    display: block;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+  .ps-link:hover {
+    border-color: var(--accent, #fbbf24);
+  }
+  .ps-link-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text, #0f172a);
+    margin: 0 0 4px;
+  }
+  .ps-link-desc {
+    font-size: 11px;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0;
+    line-height: 1.5;
+  }
+</style>

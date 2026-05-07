@@ -98,6 +98,18 @@ async function purchaseReport() {
 <Main title="Stable402 — x402 micropayment, live demo.">
 
   <!-- ═══════════════════════════════════════════════════════
+       INDUSTRY BANNER (above hero)
+       ═══════════════════════════════════════════════════════ -->
+  <a href="/pay-sh" class="industry-banner">
+    <span class="industry-banner__eyebrow">Industry · 2026-05-05</span>
+    <span class="industry-banner__body">
+      <strong>Solana Foundation + Google Cloud</strong> launched
+      <strong>pay.sh</strong> on x402 — Gemini, Vertex AI, BigQuery now
+      shipping as x402-payable endpoints. Read our analysis →
+    </span>
+  </a>
+
+  <!-- ═══════════════════════════════════════════════════════
        HERO
        ═══════════════════════════════════════════════════════ -->
   <section class="hero">
@@ -169,7 +181,7 @@ async function purchaseReport() {
     </div>
 
     <div class="section-annotation">
-      The Coinbase Smart Wallet's compliance surface reaches <strong>L3 Execution</strong> — session keys, spending limits, and transfer hooks are enforced in EVM bytecode by the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:13px;">validateUserOp</code> path of its ERC-4337 account contract, not by an off-chain dashboard. That places it <em>below the STATE line</em> in the diagram above. For the full wallet taxonomy, see <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a>.
+      The Coinbase Smart Wallet's compliance surface reaches <strong>L3 Execution</strong> — session keys, spending limits, and transfer hooks are enforced in EVM bytecode by the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:13px;">validateUserOp</code> path of its ERC-4337 account contract, not by an off-chain dashboard. That places it <em>below the STATE line</em> in the diagram above. For the full wallet taxonomy, see <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a>, or the standalone <a href="https://stablecoinatlas.com/tools/wallet-compliance-depth" target="_blank" rel="noopener noreferrer">Wallet Compliance Depth</a> tool on the Atlas.
     </div>
   </section>
 
@@ -199,7 +211,7 @@ async function purchaseReport() {
     </div>
 
     <div class="section-annotation">
-      This is what your agent sees when it hits a paywalled resource. The server doesn't know or care whether the client is a browser, a CLI tool, or an autonomous AI agent. The 402 response is the same for all of them.
+      This is what your agent sees when it hits a paywalled resource. The server doesn't know or care whether the client is a browser, a CLI tool, or an autonomous AI agent. The 402 response is the same for all of them. The Atlas diagrams the gate across all 8 STP stages as the <a href="https://stablecoinatlas.com/tools/x402-journey-map" target="_blank" rel="noopener noreferrer">x402 Payment Journey</a>.
     </div>
   </section>
 
@@ -229,7 +241,7 @@ async function purchaseReport() {
     </div>
 
     <div class="section-annotation">
-      OFAC screening fires at S6 as a code-enforced gate. The <strong>Coinbase CDP x402 facilitator</strong> verifies the EIP-3009 signature, screens the sender address against the Chainalysis sanctioned-address oracle, and only then submits the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:13px;">transferWithAuthorization</code> call to Circle's USDC contract on Base Sepolia. For the full checkpoint taxonomy, see <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a>.
+      OFAC screening fires at S6 as a code-enforced gate. The <strong>Coinbase CDP x402 facilitator</strong> verifies the EIP-3009 signature, screens the sender address against the Chainalysis sanctioned-address oracle, and only then submits the <code style="font-family:var(--font-mono); background:#f5f5f0; padding:1px 5px; border-radius:3px; font-size:13px;">transferWithAuthorization</code> call to Circle's USDC contract on Base Sepolia. For the full checkpoint taxonomy, see <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a>. The Chainalysis on-chain oracle is available as a standalone Atlas tool: <a href="https://stablecoinatlas.com/tools/chainalysis-sanctions-checker" target="_blank" rel="noopener noreferrer">Chainalysis Sanctions Checker</a>.
     </div>
   </section>
 
@@ -281,7 +293,7 @@ async function purchaseReport() {
     </div>
 
     <div class="section-annotation">
-      x402 binds these two events into an <strong>atomic delivery-versus-payment</strong> exchange — neither side can complete without the other. This is the same DvP property tokenization frameworks have spent a decade trying to engineer for traditional securities settlement, achieved here for a $0.001 PDF download with ~40 lines of Worker code. See <a href="https://atomicdvp.com" target="_blank" rel="noopener noreferrer">AtomicDvP.com</a> for the full thesis.
+      x402 binds these two events into an <strong>atomic delivery-versus-payment</strong> exchange — neither side can complete without the other. This is the same DvP property tokenization frameworks have spent a decade trying to engineer for traditional securities settlement, achieved here for a $0.001 PDF download with ~40 lines of Worker code. See <a href="https://atomicdvp.com" target="_blank" rel="noopener noreferrer">AtomicDvP.com</a> for the full thesis. The same stack diagram above is live on the Atlas as <a href="https://stablecoinatlas.com/tools/base-settlement-stack" target="_blank" rel="noopener noreferrer">Base Settlement Stack</a>, and the tokenized-securities variant is documented at <a href="https://stablecoinatlas.com/tools/dvp-poc-implementations" target="_blank" rel="noopener noreferrer">DvP POC Implementations</a>.
     </div>
   </section>
 
@@ -292,7 +304,7 @@ async function purchaseReport() {
     <div class="section-label">Section 5</div>
     <h2 class="section-title">The Code</h2>
     <p class="section-body">
-      The payment flow code — buyer site and publisher Worker — is open source. The server is ~40 lines. The client is ~60.
+      The payment flow code — buyer site and publisher Worker — is shown below. The server is ~40 lines. The client is ~60.
     </p>
 
     <!-- Code snippets (syntax-highlighted via Astro Code component) -->
@@ -306,18 +318,6 @@ async function purchaseReport() {
         <div class="label">Client (Browser) — ~60 lines</div>
         <Code code={clientCode} lang="ts" theme="github-dark" />
       </div>
-    </div>
-
-    <!-- Open source callout -->
-    <div style="text-align:center; margin:32px 0 16px;">
-      <a
-        href="https://github.com/stable402/x402-micropayment-demo"
-        target="_blank"
-        rel="noopener noreferrer"
-        style="display:inline-block; background:#0a0e17; color:#f9fafb; padding:14px 28px; border-radius:8px; font-family:var(--font-mono); font-size:14px; font-weight:600; text-decoration:none; transition:opacity 0.15s;"
-      >
-        View on GitHub
-      </a>
     </div>
 
     <!-- Links out -->
@@ -338,7 +338,49 @@ async function purchaseReport() {
         <div class="link-title">x402 Protocol Spec</div>
         <div class="link-desc">The protocol specification.</div>
       </a>
+      <a class="link-card" href="/pay-sh">
+        <div class="link-title">pay.sh — analysis</div>
+        <div class="link-desc">Solana Foundation + Google Cloud's x402 launch, May 2026.</div>
+      </a>
     </div>
   </section>
 
 </Main>
+
+<style>
+  /* Industry banner — sits above the hero, link to /pay-sh */
+  .industry-banner {
+    display: block;
+    max-width: 720px;
+    margin: 24px auto 0;
+    padding: 12px 18px;
+    background: #fffbeb;
+    border: 1px solid var(--accent, #fbbf24);
+    border-radius: 6px;
+    text-decoration: none;
+    color: var(--text, #1a1a1a);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .industry-banner:hover {
+    background: #fef3c7;
+  }
+  .industry-banner__eyebrow {
+    display: inline-block;
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-dim, #422006);
+    margin-right: 10px;
+    font-weight: 700;
+  }
+  .industry-banner__body {
+    font-family: var(--font-sans, system-ui);
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--text, #1a1a1a);
+  }
+  .industry-banner__body strong {
+    color: var(--text, #0f172a);
+  }
+</style>

@@ -2,10 +2,27 @@
 import Main from '../layouts/Main.astro';
 ---
 
-<Main title="About — Stable402.com" description="About Stable402.">
+<Main title="About — Stable402.com" description="Stable402.com is a side project of StablecoinAtlas.com — a live x402 micropayment demo.">
 
-  <section class="hero" style="text-align:left; padding-top:40px;">
+  <section class="hero" style="text-align:left; padding-top:40px; max-width:680px;">
     <h1 style="font-size:32px;">About Stable402</h1>
+    <p style="font-size:16px; line-height:1.6; margin-top:20px; color:#1f2937;">
+      Stable402.com is a side project of <a href="https://stablecoinatlas.com" target="_blank" rel="noopener noreferrer">StablecoinAtlas.com</a> — the compliance reference for stablecoin infrastructure.
+    </p>
+    <p style="font-size:16px; line-height:1.6; margin-top:16px; color:#1f2937;">
+      Where the Atlas <em>diagrams</em> the x402 payment lifecycle across all 8 STP stages, Stable402 <em>runs</em> it: a working end-to-end demo that buys a compliance report from <a href="https://stablekya.com" target="_blank" rel="noopener noreferrer">StableKYA.com</a> for $0.001 testnet USDC, signed by a Coinbase Smart Wallet and settled on Base Sepolia via the Coinbase CDP x402 facilitator.
+    </p>
+    <p style="font-size:16px; line-height:1.6; margin-top:16px; color:#1f2937;">
+      The reference lives on the Atlas. The proof lives here.
+    </p>
+    <p style="font-size:16px; line-height:1.6; margin-top:24px; color:#1f2937;">
+      x402 is no longer a single-vendor protocol. <strong>Coinbase</strong> shipped the
+      spec; <strong>Cloudflare</strong> ships facilitator infrastructure on the edge;
+      <strong>Solana Foundation</strong> and <strong>Google Cloud</strong> launched
+      <a href="/pay-sh">pay.sh</a> on it in May 2026 with Gemini, Vertex AI, and
+      BigQuery shipping as x402-payable endpoints. Stable402 is the chain-agnostic,
+      compliance-aware reference that sits alongside all of them.
+    </p>
   </section>
 
 </Main>
