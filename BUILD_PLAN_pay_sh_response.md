@@ -278,9 +278,9 @@ Update this section in-place as phases complete. Each row should end at "shipped
 
 | Phase | Item | Status |
 |---|---|---|
-| A1 | `/pay-sh` page | not started |
+| A1 | `/pay-sh` page | in flight — drafted 2026-05-07, awaiting commit |
 | A2 | `/compliance-gap` page | not started |
-| A3 | Index + about + nav edits | not started |
+| A3 | Index + about + nav edits | in flight — drafted 2026-05-07, awaiting commit |
 | B1 | `/agents` page | not started |
 | B2 | `/multi-chain` page | not started |
 | B3 | `/coinbase` sponsor landing | not started |
