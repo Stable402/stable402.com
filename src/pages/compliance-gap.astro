@@ -1,0 +1,838 @@
+---
+/**
+ * /compliance-gap — The compliance layer x402 does not ship with.
+ *
+ * Highest-leverage page in the BUILD_PLAN_pay_sh_response.md set.
+ * Sent to Catena Labs, Circle, Bridge, Paxos for sponsor conversations.
+ *
+ * Frame: x402 specifies the protocol; the regulated counterparty layer is
+ * unspecified by design. pay.sh demonstrates this gap at scale. Stable402
+ * names the four legs where regulatory questions live, and the named
+ * industry players who can answer them.
+ *
+ * Voice matches /cloudflare and /pay-sh: declarative, named-vendor,
+ * honesty-marker conventions. No fluff. No legal advice — descriptive only.
+ *
+ * NOTE: This page describes the regulatory landscape; it is not legal
+ * advice. The closing footer says so explicitly.
+ *
+ * TODO: Phase B may add hover tooltips to the four-leg diagram nodes.
+ * If so, follow the canonical tooltip standard in CLAUDE.md / Atlas
+ * Production Spec §4.2.
+ */
+import Main from '../layouts/Main.astro';
+---
+
+<Main
+  title="The compliance layer x402 does not ship with — Stable402"
+  description="x402 specifies the protocol; the regulated counterparty layer is unspecified by design. The four legs of an agent-payments flow each carry a regulatory question. This is where they live and who can answer them."
+>
+
+  <!-- ═══════════════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════════════ -->
+  <section class="cg-hero">
+    <p class="cg-eyebrow">Compliance reference · 2026-05-07</p>
+    <h1>The compliance layer x402 <span class="cg-accent">doesn't ship with</span>.</h1>
+    <p class="cg-subhead">
+      x402 specifies the protocol — the HTTP 402 challenge, the payment proof,
+      the facilitator handshake. The <strong>regulated counterparty layer</strong> is
+      unspecified by design. <a href="/pay-sh">pay.sh</a> demonstrates this gap at scale:
+      Solana Foundation and Google Cloud shipped a production gateway with one sentence
+      addressing compliance. The four legs of any agent-payments flow each carry a
+      regulatory question. This page names them, and names the industry players who can
+      answer them.
+    </p>
+
+    <p class="cg-honesty">
+      <strong>What this page is.</strong> A descriptive map of where regulatory questions
+      live in an x402 flow, written for compliance officers, fintech program leads, and
+      acquirers doing due diligence on agent payments. <strong>What it is not.</strong>
+      Legal or regulatory advice. The named industry players are illustrative of who
+      <em>can</em> hold each role — actual licensing posture and jurisdictional coverage
+      are matters for the parties themselves to confirm.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 1: THE FOUR-LEG FLOW DIAGRAM
+       ═══════════════════════════════════════════════════════ -->
+  <section class="cg-section">
+    <p class="cg-section-eyebrow">Section 1</p>
+    <h2 class="cg-section-title">The four legs.</h2>
+    <p class="cg-section-body">
+      An agent-to-API payment over x402 has four loci where a regulatory obligation
+      lands. The diagram below is the canonical flow — agent wallet pays a facilitator,
+      which authorizes and settles to an API provider, which receives fiat through a
+      separate off-ramp leg. Each box names the regulatory question that has to be
+      answered before that leg goes to production volume.
+    </p>
+
+    <div class="cg-flow">
+      <svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" role="img"
+           aria-label="Four-leg agent-payments flow with the regulatory question at each leg.">
+        <defs>
+          <marker id="cgarr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="#475569" />
+          </marker>
+        </defs>
+
+        <g font-family="var(--font-sans, system-ui)" font-size="11">
+          <!-- Leg 1: Agent wallet -->
+          <rect x="20" y="40" width="160" height="80" rx="6" fill="#fff" stroke="#0f172a" stroke-width="1.5" />
+          <text x="100" y="66" text-anchor="middle" font-weight="700" fill="#0f172a">Leg 1</text>
+          <text x="100" y="84" text-anchor="middle" fill="#1a1a1a">Agent wallet</text>
+          <text x="100" y="102" text-anchor="middle" fill="#475569" font-size="10">EVM · Solana · A2A</text>
+
+          <!-- Leg 2: Facilitator -->
+          <rect x="200" y="40" width="160" height="80" rx="6" fill="#fff" stroke="#0f172a" stroke-width="1.5" />
+          <text x="280" y="66" text-anchor="middle" font-weight="700" fill="#0f172a">Leg 2</text>
+          <text x="280" y="84" text-anchor="middle" fill="#1a1a1a">Facilitator</text>
+          <text x="280" y="102" text-anchor="middle" fill="#475569" font-size="10">CDP · pay.sh · Cloudflare</text>
+
+          <!-- Leg 3: API provider -->
+          <rect x="380" y="40" width="160" height="80" rx="6" fill="#fff" stroke="#0f172a" stroke-width="1.5" />
+          <text x="460" y="66" text-anchor="middle" font-weight="700" fill="#0f172a">Leg 3</text>
+          <text x="460" y="84" text-anchor="middle" fill="#1a1a1a">API provider</text>
+          <text x="460" y="102" text-anchor="middle" fill="#475569" font-size="10">Resource · revenue</text>
+
+          <!-- Leg 4: Fiat-out -->
+          <rect x="560" y="40" width="180" height="80" rx="6" fill="#fff" stroke="#0f172a" stroke-width="1.5" />
+          <text x="650" y="66" text-anchor="middle" font-weight="700" fill="#0f172a">Leg 4</text>
+          <text x="650" y="84" text-anchor="middle" fill="#1a1a1a">Fiat-out leg</text>
+          <text x="650" y="102" text-anchor="middle" fill="#475569" font-size="10">MSB · off-ramp</text>
+
+          <!-- Arrows between -->
+          <line x1="180" y1="80" x2="200" y2="80" stroke="#475569" stroke-width="1.4" marker-end="url(#cgarr)" />
+          <line x1="360" y1="80" x2="380" y2="80" stroke="#475569" stroke-width="1.4" marker-end="url(#cgarr)" />
+          <line x1="540" y1="80" x2="560" y2="80" stroke="#475569" stroke-width="1.4" marker-end="url(#cgarr)" />
+
+          <!-- Question boxes below each leg -->
+          <rect x="20" y="160" width="160" height="140" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-dasharray="3,3" />
+          <text x="100" y="180" text-anchor="middle" font-weight="700" fill="#b45309" font-size="10">REGULATORY QUESTION</text>
+          <text x="100" y="200" text-anchor="middle" fill="#1a1a1a" font-size="11">Is this wallet</text>
+          <text x="100" y="216" text-anchor="middle" fill="#1a1a1a" font-size="11">sanctioned?</text>
+          <text x="100" y="240" text-anchor="middle" fill="#475569" font-size="10">OFAC screen</text>
+          <text x="100" y="256" text-anchor="middle" fill="#475569" font-size="10">at the gate</text>
+          <text x="100" y="282" text-anchor="middle" fill="#0f172a" font-size="10" font-style="italic">Chainalysis oracle</text>
+
+          <rect x="200" y="160" width="160" height="140" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-dasharray="3,3" />
+          <text x="280" y="180" text-anchor="middle" font-weight="700" fill="#b45309" font-size="10">REGULATORY QUESTION</text>
+          <text x="280" y="200" text-anchor="middle" fill="#1a1a1a" font-size="11">Who is the licensed</text>
+          <text x="280" y="216" text-anchor="middle" fill="#1a1a1a" font-size="11">authorizing entity?</text>
+          <text x="280" y="240" text-anchor="middle" fill="#475569" font-size="10">MTL · MSB</text>
+          <text x="280" y="256" text-anchor="middle" fill="#475569" font-size="10">posture</text>
+          <text x="280" y="282" text-anchor="middle" fill="#0f172a" font-size="10" font-style="italic">Coinbase CDP</text>
+
+          <rect x="380" y="160" width="160" height="140" rx="6" fill="#fffbeb" stroke="#f59e0b" stroke-dasharray="3,3" />
+          <text x="460" y="180" text-anchor="middle" font-weight="700" fill="#b45309" font-size="10">REGULATORY QUESTION</text>
+          <text x="460" y="200" text-anchor="middle" fill="#1a1a1a" font-size="11">Recordkeeping</text>
+          <text x="460" y="216" text-anchor="middle" fill="#1a1a1a" font-size="11">and revenue?</text>
+          <text x="460" y="240" text-anchor="middle" fill="#475569" font-size="10">Travel Rule</text>
+          <text x="460" y="256" text-anchor="middle" fill="#475569" font-size="10">aggregate flow</text>
+          <text x="460" y="282" text-anchor="middle" fill="#0f172a" font-size="10" font-style="italic">Provider-side ledger</text>
+
+          <rect x="560" y="160" width="180" height="140" rx="6" fill="#fef2f2" stroke="#ef4444" stroke-dasharray="3,3" />
+          <text x="650" y="180" text-anchor="middle" font-weight="700" fill="#b91c1c" font-size="10">REGULATORY QUESTION</text>
+          <text x="650" y="200" text-anchor="middle" fill="#1a1a1a" font-size="11">Who is the MSB</text>
+          <text x="650" y="216" text-anchor="middle" fill="#1a1a1a" font-size="11">on the fiat leg?</text>
+          <text x="650" y="240" text-anchor="middle" fill="#475569" font-size="10">FinCEN MSB</text>
+          <text x="650" y="256" text-anchor="middle" fill="#475569" font-size="10">jurisdictional</text>
+          <text x="650" y="282" text-anchor="middle" fill="#0f172a" font-size="10" font-style="italic">Bridge · BVNK · Paxos</text>
+
+          <!-- Connecting dashed lines from leg → question -->
+          <line x1="100" y1="120" x2="100" y2="160" stroke="#f59e0b" stroke-width="1" stroke-dasharray="2,3" />
+          <line x1="280" y1="120" x2="280" y2="160" stroke="#f59e0b" stroke-width="1" stroke-dasharray="2,3" />
+          <line x1="460" y1="120" x2="460" y2="160" stroke="#f59e0b" stroke-width="1" stroke-dasharray="2,3" />
+          <line x1="650" y1="120" x2="650" y2="160" stroke="#ef4444" stroke-width="1" stroke-dasharray="2,3" />
+        </g>
+      </svg>
+    </div>
+
+    <p class="cg-flow-caption">
+      Leg 4 — the fiat-out leg — is rendered in red because it is the most regulated leg
+      in the entire flow and the one most often left unspecified in agent-payments
+      announcements. pay.sh's launch materials state providers <em>"receive funds in
+      fiat"</em> without naming the licensed entity that does the conversion. That entity
+      exists; it is just unnamed in public.
+    </p>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 2: LEG-BY-LEG DETAIL
+       ═══════════════════════════════════════════════════════ -->
+  <section class="cg-section">
+    <p class="cg-section-eyebrow">Section 2</p>
+    <h2 class="cg-section-title">Each leg, in detail.</h2>
+    <p class="cg-section-body">
+      Four short notes, one per leg. Each names the question, what x402 says, what
+      pay.sh says, and what a compliance-aware implementation would name.
+    </p>
+
+    <!-- Leg 1 -->
+    <div class="cg-leg">
+      <div class="cg-leg-header">
+        <span class="cg-leg-num">Leg 1</span>
+        <h3 class="cg-leg-title">Agent wallet — is it sanctioned?</h3>
+      </div>
+      <div class="cg-leg-grid">
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">The question</p>
+          <p class="cg-cell-body">
+            Is the wallet on an OFAC sanctions list, or otherwise associated with
+            illicit flows? At per-call micropayment volume an autonomous agent can fan
+            out to thousands of providers before any human review.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What x402 says</p>
+          <p class="cg-cell-body">
+            Nothing prescriptive. The protocol does not specify wallet-level screening;
+            it leaves that to the facilitator or the publisher.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What pay.sh says</p>
+          <p class="cg-cell-body">
+            The /docs frame KYC as a <em>"friction"</em> being removed. No mention of
+            wallet-level OFAC screening in the launch materials.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">A compliance-aware implementation</p>
+          <p class="cg-cell-body">
+            Wallet-level screening via the <strong>Chainalysis</strong> sanctioned-address
+            on-chain oracle, fired at the gate <em>before</em> the facilitator settles.
+            Stable402's home-page demo runs this at S6 of the journey. See the standalone
+            <a href="https://stablecoinatlas.com/tools/chainalysis-sanctions-checker"
+               target="_blank" rel="noopener noreferrer">Chainalysis Sanctions Checker</a>
+            tool on the Atlas.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leg 2 -->
+    <div class="cg-leg">
+      <div class="cg-leg-header">
+        <span class="cg-leg-num">Leg 2</span>
+        <h3 class="cg-leg-title">Facilitator — who is the licensed authorizing entity?</h3>
+      </div>
+      <div class="cg-leg-grid">
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">The question</p>
+          <p class="cg-cell-body">
+            The facilitator verifies the payment proof and submits the on-chain
+            authorization. In any non-trivial volume, this is the entity carrying
+            money-transmission risk. Who holds the license?
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What x402 says</p>
+          <p class="cg-cell-body">
+            The protocol specifies what a facilitator <em>does</em> — verify, settle —
+            not who the facilitator <em>is</em>. By design.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What pay.sh says</p>
+          <p class="cg-cell-body">
+            Names itself as a <em>"Gateway as a Service"</em>. The licensed counterparty
+            inside the gateway is unnamed. The eight launch facilitators are catalog
+            participants, not necessarily money-transmission licensees.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">A compliance-aware implementation</p>
+          <p class="cg-cell-body">
+            A named, licensed facilitator. On EVM, the <strong>Coinbase CDP x402
+            facilitator</strong> sits inside Coinbase's broader money-transmission stack.
+            On the edge, <strong>Cloudflare</strong>'s facilitator pattern pushes the
+            licensing question to whoever runs on top — which is exactly where Stable402
+            and the Atlas position themselves.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leg 3 -->
+    <div class="cg-leg">
+      <div class="cg-leg-header">
+        <span class="cg-leg-num">Leg 3</span>
+        <h3 class="cg-leg-title">API provider — recordkeeping and aggregate flow.</h3>
+      </div>
+      <div class="cg-leg-grid">
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">The question</p>
+          <p class="cg-cell-body">
+            The provider receives revenue. Per-call volumes are tiny; aggregate
+            volumes are not. Recordkeeping for the provider's own books, plus
+            Travel-Rule-relevant aggregate flow, becomes load-bearing as agent
+            traffic compounds.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What x402 says</p>
+          <p class="cg-cell-body">
+            Treats the provider as an opaque endpoint. Provider-side recordkeeping is
+            outside the protocol.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What pay.sh says</p>
+          <p class="cg-cell-body">
+            Lists the providers (Helius, Alchemy, BigQuery, Vertex AI, Dune, Nansen,
+            and 40+ more). Provider-side revenue handling is implied by the fiat-out
+            promise but not described.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">A compliance-aware implementation</p>
+          <p class="cg-cell-body">
+            Provider-side ledger and invoice handling, with an aggregate-flow trigger
+            for Travel Rule reporting once cross-border thresholds are met. <strong>Circle</strong>'s
+            CCTP and recordkeeping primitives, and StableKYA's compliance-report
+            artifact pattern, are the closest reference designs.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leg 4 -->
+    <div class="cg-leg cg-leg--critical">
+      <div class="cg-leg-header">
+        <span class="cg-leg-num">Leg 4 · critical</span>
+        <h3 class="cg-leg-title">Fiat-out — who is the MSB?</h3>
+      </div>
+      <div class="cg-leg-grid">
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">The question</p>
+          <p class="cg-cell-body">
+            Stablecoins go in; fiat comes out to providers. The entity converting
+            stablecoins to fiat and remitting them is doing money transmission. In
+            the United States that is a <strong>FinCEN-registered MSB</strong>; in
+            other jurisdictions it is the local equivalent (VASP, e-money issuer,
+            payment institution). Who holds that license?
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What x402 says</p>
+          <p class="cg-cell-body">
+            Nothing — x402 is an HTTP payment-required protocol, not a fiat-rail
+            specification. The protocol stops at the on-chain settlement.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">What pay.sh says</p>
+          <p class="cg-cell-body">
+            <em>"Providers receive funds in fiat."</em> The MSB is unnamed in the
+            launch materials. Somebody has to hold that license; the public materials
+            do not say who.
+          </p>
+        </div>
+        <div class="cg-leg-cell">
+          <p class="cg-cell-eyebrow">A compliance-aware implementation</p>
+          <p class="cg-cell-body">
+            A named, licensed off-ramp partner. <strong>Bridge</strong> (acquired by
+            Stripe) is the canonical example for stablecoin-to-fiat at scale; <strong>BVNK</strong>
+            and <strong>Paxos</strong> run comparable offerings. <strong>Circle</strong>
+            handles redemption directly for USDC. Stable402's view is that the fiat-out
+            leg should always be a named, licensed party, not an implied one.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 3: WHAT STABLE402 CONTRIBUTES
+       ═══════════════════════════════════════════════════════ -->
+  <section class="cg-section">
+    <p class="cg-section-eyebrow">Section 3</p>
+    <h2 class="cg-section-title">What Stable402 contributes.</h2>
+    <p class="cg-section-body">
+      Stable402 is not the regulated counterparty on any of these four legs. We are the
+      <strong>public reference</strong> that names where the regulatory questions live
+      and points at the named industry players who can answer them. Three concrete
+      contributions:
+    </p>
+
+    <div class="cg-contrib-list">
+      <div class="cg-contrib">
+        <p class="cg-contrib-num">01</p>
+        <p class="cg-contrib-title">A live small-scale proof.</p>
+        <p class="cg-contrib-body">
+          Stable402's home page runs the full four-leg flow at $0.001 USDC, with
+          Chainalysis OFAC screening firing at S6 as a code-enforced gate before the
+          Coinbase CDP facilitator submits the EIP-3009 transfer. The fiat-out leg is
+          out of scope for the demo (the seller is also the operator), but legs 1, 2,
+          and 3 are working artifacts that compliance officers can inspect.
+        </p>
+      </div>
+
+      <div class="cg-contrib">
+        <p class="cg-contrib-num">02</p>
+        <p class="cg-contrib-title">A cartography that names the answers.</p>
+        <p class="cg-contrib-body">
+          The <a href="https://stablecoinatlas.com" target="_blank" rel="noopener noreferrer">StablecoinAtlas</a>
+          maps 56+ paths across 8 rails — USDC, PYUSD, RLUSD, MMF tokens, tokenized
+          deposits, and more — naming who is the issuer, who is the licensed
+          counterparty, and where compliance is enforced in code versus policy. It is
+          the deeper reference layer agents and compliance officers can both read.
+        </p>
+      </div>
+
+      <div class="cg-contrib">
+        <p class="cg-contrib-num">03</p>
+        <p class="cg-contrib-title">A neutral seam between the protocol and the regulated layer.</p>
+        <p class="cg-contrib-body">
+          The protocol layer (x402, pay.sh, Coinbase CDP, Cloudflare facilitator) and the
+          regulated counterparty layer (Circle, Paxos, Bridge, BVNK, Catena Labs) speak
+          different languages. Stable402 sits between them — citing both, branded with
+          neither — so that a CTO at a fintech can land here and see the whole shape in
+          ten minutes.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 4: WHO SHOULD READ THIS
+       ═══════════════════════════════════════════════════════ -->
+  <section class="cg-section">
+    <p class="cg-section-eyebrow">Section 4</p>
+    <h2 class="cg-section-title">Who should read this.</h2>
+
+    <div class="cg-audience">
+      <div class="cg-audience-row">
+        <p class="cg-audience-tier">Compliance officers at issuers and regulated counterparties</p>
+        <p class="cg-audience-body">
+          <strong>Circle, Paxos, Bridge, BVNK, Stripe.</strong> Legs 1 and 4 are direct
+          integration points for your existing infrastructure — wallet screening, MSB
+          posture, redemption rails. We are not selling to you; we are documenting that
+          you exist in the right place in the flow, and inviting you to contribute the
+          authoritative description of how your offering plugs in.
+        </p>
+      </div>
+
+      <div class="cg-audience-row">
+        <p class="cg-audience-tier">Program leads at fintech and infrastructure incumbents</p>
+        <p class="cg-audience-body">
+          <strong>Coinbase, Catena Labs, Cloudflare, Solana Foundation, Google Cloud.</strong>
+          The compliance gap above is your sponsorship lane. Funding a public reference
+          that names the gaps and names the named industry players is materially cheaper
+          than building it in-house, and the neutrality is what makes it readable across
+          the ecosystem.
+        </p>
+      </div>
+
+      <div class="cg-audience-row">
+        <p class="cg-audience-tier">Acquirers doing due diligence on the agent-payments space</p>
+        <p class="cg-audience-body">
+          The regulated counterparty layer is where durable value lives in agent
+          payments — not in the gateway, not in the SDK, not in the protocol. This page
+          is the most concise public mapping of where that layer lives. If you are
+          evaluating an acquisition target in this space, the four-leg map is the
+          due-diligence checklist.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════
+       SECTION 5: LINKS OUT
+       ═══════════════════════════════════════════════════════ -->
+  <section class="cg-section">
+    <p class="cg-section-eyebrow">Section 5</p>
+    <h2 class="cg-section-title">Sources and further reading.</h2>
+
+    <div class="cg-links">
+      <a class="cg-link" href="/pay-sh">
+        <p class="cg-link-title">pay.sh — analysis</p>
+        <p class="cg-link-desc">Solana Foundation + Google Cloud's x402 launch, May 2026 — what's named, what's left blank.</p>
+      </a>
+      <a class="cg-link" href="https://x402.org" target="_blank" rel="noopener noreferrer">
+        <p class="cg-link-title">x402 protocol specification</p>
+        <p class="cg-link-desc">The HTTP 402 Payment Required specification.</p>
+      </a>
+      <a class="cg-link" href="https://stablecoinatlas.com" target="_blank" rel="noopener noreferrer">
+        <p class="cg-link-title">StablecoinAtlas.com</p>
+        <p class="cg-link-desc">The cartography of compliance — 56+ paths, 8 rails, MCP-callable.</p>
+      </a>
+      <a class="cg-link" href="https://stablecoinatlas.com/tools/chainalysis-sanctions-checker" target="_blank" rel="noopener noreferrer">
+        <p class="cg-link-title">Chainalysis Sanctions Checker</p>
+        <p class="cg-link-desc">The on-chain OFAC oracle, callable as a standalone Atlas tool.</p>
+      </a>
+      <a class="cg-link" href="https://stablekya.com" target="_blank" rel="noopener noreferrer">
+        <p class="cg-link-title">StableKYA.com</p>
+        <p class="cg-link-desc">Know-Your-Agent depth — the wallet-side compliance reference.</p>
+      </a>
+      <a class="cg-link" href="https://atomicdvp.com" target="_blank" rel="noopener noreferrer">
+        <p class="cg-link-title">AtomicDvP.com</p>
+        <p class="cg-link-desc">Delivery-versus-payment for tokenized securities. The institutional sibling thesis.</p>
+      </a>
+      <a class="cg-link" href="/cloudflare">
+        <p class="cg-link-title">Stable402 — built on Cloudflare</p>
+        <p class="cg-link-desc">Architecture, the 40-LOC Worker, and why compliance enforcement belongs at the edge.</p>
+      </a>
+      <a class="cg-link" href="mailto:leo@stableclarity.com?subject=Compliance%20gap%20-%20Stable402">
+        <p class="cg-link-title">leo@stableclarity.com</p>
+        <p class="cg-link-desc">Direct contact for compliance, sponsorship, and partnership conversations.</p>
+      </a>
+    </div>
+
+    <p class="cg-disclaimer">
+      <strong>Not legal advice.</strong> This page is descriptive analysis of the
+      regulatory landscape around agent payments. The named industry players are
+      illustrative of who can hold each role; actual licensing posture, jurisdictional
+      coverage, and applicability are matters for the parties themselves and qualified
+      counsel to confirm.
+    </p>
+  </section>
+
+</Main>
+
+<style>
+  /* ── Hero ─────────────────────────────────────────────────────── */
+  .cg-hero {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 56px 24px 36px;
+    text-align: center;
+  }
+  .cg-eyebrow {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #6b6b6b);
+    margin-bottom: 12px;
+  }
+  .cg-hero h1 {
+    font-family: var(--font-sans, system-ui);
+    font-size: 38px;
+    font-weight: 800;
+    color: var(--text, #0f172a);
+    margin: 0 0 18px;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+  }
+  .cg-hero h1 .cg-accent {
+    color: #b45309;
+  }
+  .cg-subhead {
+    font-family: var(--font-sans, system-ui);
+    font-size: 16px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.65;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  .cg-subhead strong {
+    color: var(--text, #0f172a);
+  }
+  .cg-subhead a {
+    color: var(--accent-dim, #422006);
+    border-bottom: 1px solid var(--accent, #fbbf24);
+    text-decoration: none;
+  }
+
+  .cg-honesty {
+    margin: 28px auto 0;
+    font-size: 12px;
+    color: var(--text-muted, #6b6b6b);
+    line-height: 1.65;
+    max-width: 680px;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-left: 3px solid #f59e0b;
+    text-align: left;
+    border-radius: 0 4px 4px 0;
+  }
+  .cg-honesty strong {
+    color: var(--text, #0f172a);
+  }
+  .cg-honesty em {
+    font-style: italic;
+  }
+
+  /* ── Sections ─────────────────────────────────────────────────── */
+  .cg-section {
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 48px 24px 24px;
+  }
+  .cg-section-eyebrow {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0 0 8px;
+  }
+  .cg-section-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0 0 14px;
+    letter-spacing: -0.005em;
+  }
+  .cg-section-body {
+    font-family: var(--font-sans, system-ui);
+    font-size: 14px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.7;
+    max-width: 760px;
+    margin: 0 0 20px;
+  }
+  .cg-section-body strong {
+    color: var(--text, #0f172a);
+  }
+  .cg-section-body em {
+    font-style: italic;
+    color: var(--text, #0f172a);
+  }
+  .cg-section-body a {
+    color: var(--accent-dim, #422006);
+    border-bottom: 1px solid var(--accent, #fbbf24);
+    text-decoration: none;
+  }
+
+  /* ── Four-leg flow diagram ────────────────────────────────────── */
+  .cg-flow {
+    margin: 8px 0 18px;
+    padding: 18px;
+    background: #fafbfc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+  .cg-flow svg {
+    width: 100%;
+    height: auto;
+    max-width: 760px;
+    display: block;
+    margin: 0 auto;
+  }
+  .cg-flow-caption {
+    font-size: 12px;
+    color: var(--text-muted, #6b6b6b);
+    line-height: 1.6;
+    max-width: 760px;
+  }
+  .cg-flow-caption em {
+    font-style: italic;
+    color: var(--text, #1a1a1a);
+  }
+
+  /* ── Leg blocks ───────────────────────────────────────────────── */
+  .cg-leg {
+    margin: 0 0 18px;
+    padding: 18px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .cg-leg--critical {
+    border-color: #ef4444;
+    border-left-width: 3px;
+    background: #fff7f7;
+  }
+  .cg-leg-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .cg-leg-num {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    color: var(--accent-dim, #422006);
+    background: #fef3c7;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .cg-leg--critical .cg-leg-num {
+    color: #b91c1c;
+    background: #fee2e2;
+  }
+  .cg-leg-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  .cg-leg-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 760px) {
+    .cg-leg-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .cg-leg-cell {
+    padding: 10px 12px;
+    background: #fafbfc;
+    border-left: 2px solid #cbd5e1;
+    border-radius: 0 4px 4px 0;
+  }
+  .cg-leg--critical .cg-leg-cell {
+    background: #fef9f9;
+  }
+  .cg-cell-eyebrow {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0 0 6px;
+    font-weight: 700;
+  }
+  .cg-cell-body {
+    font-size: 13px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .cg-cell-body strong {
+    color: var(--text, #0f172a);
+  }
+  .cg-cell-body em {
+    font-style: italic;
+  }
+  .cg-cell-body a {
+    color: var(--accent-dim, #422006);
+    border-bottom: 1px solid var(--accent, #fbbf24);
+    text-decoration: none;
+  }
+
+  /* ── Contributions (Section 3) ────────────────────────────────── */
+  .cg-contrib-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .cg-contrib {
+    padding: 18px 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .cg-contrib-num {
+    font-family: var(--font-mono, ui-monospace);
+    font-size: 11px;
+    color: var(--accent, #fbbf24);
+    font-weight: 700;
+    margin: 0 0 6px;
+    letter-spacing: 0.06em;
+  }
+  .cg-contrib-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0 0 10px;
+    line-height: 1.4;
+  }
+  .cg-contrib-body {
+    font-size: 13px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.7;
+    margin: 0;
+  }
+  .cg-contrib-body a {
+    color: var(--accent-dim, #422006);
+    border-bottom: 1px solid var(--accent, #fbbf24);
+    text-decoration: none;
+  }
+
+  /* ── Audience rows (Section 4) ────────────────────────────────── */
+  .cg-audience {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .cg-audience-row {
+    padding: 16px 18px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+  }
+  .cg-audience-tier {
+    font-family: var(--font-sans, system-ui);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text, #0f172a);
+    margin: 0 0 8px;
+  }
+  .cg-audience-body {
+    font-size: 13px;
+    color: var(--text, #1a1a1a);
+    line-height: 1.7;
+    margin: 0;
+  }
+  .cg-audience-body strong {
+    color: var(--text, #0f172a);
+  }
+
+  /* ── Links out (Section 5) ────────────────────────────────────── */
+  .cg-links {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  @media (min-width: 720px) {
+    .cg-links {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .cg-link {
+    display: block;
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 5px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+  .cg-link:hover {
+    border-color: var(--accent, #fbbf24);
+  }
+  .cg-link-title {
+    font-family: var(--font-sans, system-ui);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text, #0f172a);
+    margin: 0 0 4px;
+  }
+  .cg-link-desc {
+    font-size: 11px;
+    color: var(--text-muted, #6b6b6b);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .cg-disclaimer {
+    margin: 24px 0 0;
+    font-size: 11px;
+    color: var(--text-muted, #6b6b6b);
+    line-height: 1.6;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-left: 3px solid #cbd5e1;
+    border-radius: 0 4px 4px 0;
+  }
+  .cg-disclaimer strong {
+    color: var(--text, #0f172a);
+  }
+</style>
